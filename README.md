@@ -20,15 +20,17 @@ I made this custom ROM to bring Google Glass back to life after more than 13 yea
 
 | Title | Version | Channel | Download | Info
 |-------| --------|--------|---------|---------|
-| ExplorerOS 26.0 Public Beta 1 | 26.0 (200626PB1) | Stable Beta | [Download](https://drive.google.com/drive/folders/1sthRXSZ63CTTSfoUvg8625V3FmW4pmbe?usp=sharing) | Very old, Install Public Beta 2 |
+| ExplorerOS 26.0 Public Beta 1 | 26.0 (26PB1) | Stable Beta | [Download](https://drive.google.com/drive/folders/1sthRXSZ63CTTSfoUvg8625V3FmW4pmbe?usp=sharing) | Very old, Install Public Beta 2 |
 | ExplorerOS 26.0 Public Beta 2 | 26.0 (26PB7) | Stable Beta | [Download](https://drive.google.com/drive/folders/1sthRXSZ63CTTSfoUvg8625V3FmW4pmbe?usp=sharing) | New Design |
+| ExplorerOS 26.0 Public Beta 3 | 26.0 (26PB8) | Stable Beta | [Download](https://drive.google.com/drive/folders/1sthRXSZ63CTTSfoUvg8625V3FmW4pmbe?usp=sharing) | New Live Activities |
 
 # Installation (currently Windows only)
 
-#### **Before installing**: see "Post-install"
 
 > [!WARNING]
 > Make sure there are no spaces in the path to the firmware, sometimes ADB incorrectly sends folders that contain spaces
+
+### **Before installing**: see "Post-install"
 
 1. Download this repository
 2. Download an ExplorerOS build from "Builds"
