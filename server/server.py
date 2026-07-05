@@ -46,6 +46,12 @@ def ask_ai():
     message = request.args.get("message")
     api_key = request.args.get("key")
 
+    model_file = open("settings/model.json", "r")
+    model = model_file.read()
+    
+    model_file.close()
+
+
     prompt = f"""
 Current time: {datetime.datetime.now()}
 
@@ -115,6 +121,28 @@ If the user asks to open gallery, respond with:
 
 GLASS_OPEN_GALLERY
 
+If the user asks to start stopwatch, respond with:
+
+GLASS_START_STOPWATCH
+
+If the user asks to stop stopwatch, respond with:
+
+GLASS_STOP_STOPWATCH
+
+If the user asks to start timer, respond with:
+
+GLASS_START_TIMER
+<hours>
+<minutes>
+<seconds>
+
+Example:
+
+GLASS_START_TIMER
+0
+5
+0
+
 You may answer any other questions normally. For any other question, respond like this:
 
 <answer>
@@ -137,7 +165,7 @@ User's message: {message}
         "Content-Type": "application/json",
     },
     data=json.dumps({
-        "model": "google/gemini-3.1-flash-lite",
+        "model": model,
         "messages": [
         {
             "role": "user",
@@ -162,6 +190,7 @@ User's message: {message}
         print(f"Error Code: {e}")
         print(f"Response: {response.text}")
         print(f"User question: {message}")
+        print(f"Model used: {model}")
         return "Error while processing your request!"
 
 if __name__ == "__main__":
