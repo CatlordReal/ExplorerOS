@@ -1,0 +1,49 @@
+{
+  "id": "notes.browse",
+  "name": "Explorer Browse Notes",
+  "summary": "Choose an Apple Note and coerce it to text for Explorer Link review. Exact note body transfer is unverified on iPhone; check the preview before sending.",
+  "availability": "public_app_url_contract",
+  "foreground_review": true,
+  "actions": [
+    {
+      "kind": "system_action",
+      "label": "Find Notes",
+      "parameters": {
+        "selection": "user_select"
+      }
+    },
+    {
+      "kind": "system_action",
+      "label": "Choose from List",
+      "parameters": {
+        "input": "found_notes"
+      }
+    },
+    {
+      "kind": "system_action",
+      "label": "Get Text from Input",
+      "parameters": {
+        "input": "chosen_note",
+        "body_transfer": "device_unverified"
+      }
+    },
+    {
+      "kind": "system_action",
+      "label": "URL Encode",
+      "parameters": {
+        "mode": "Encode",
+        "input": "coerced_text"
+      }
+    },
+    {
+      "kind": "open_url",
+      "label": "Open Explorer Link preview",
+      "parameters": {
+        "url": "explorerlink://preview?text={percent_encoded_note_text}",
+        "receiver_limit_utf8_bytes": 4096,
+        "oversize": "receiver_rejects",
+        "send": "user_taps_send"
+      }
+    }
+  ]
+}

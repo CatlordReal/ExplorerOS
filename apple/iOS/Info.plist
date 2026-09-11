@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleDisplayName</key>
+	<string>Explorer Link</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>$(PRODUCT_NAME)</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>org.exploreros.ExplorerLink.preview</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>explorerlink</string>
+			</array>
+		</dict>
+	</array>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>shortcuts</string>
+	</array>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Connect to your paired Glass bridge and send encrypted cards and directions.</string>
+	<key>NSCalendarsFullAccessUsageDescription</key>
+	<string>Read upcoming events only when you choose to send them to Glass.</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Connect to your Glass or local simulated Glass endpoint over Wi-Fi.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Use your current location to calculate route steps you choose to send to Glass.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Capture dictation you explicitly start and send it to Glass.</string>
+	<key>NSRemindersFullAccessUsageDescription</key>
+	<string>Read unfinished reminders only when you choose to send them to Glass.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Transcribe your own dictation on-device for display on Glass.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>bluetooth-peripheral</string>
+	</array>
+	<key>UILaunchScreen</key>
+	<dict/>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+</dict>
+</plist>

@@ -1,0 +1,74 @@
+name: ExplorerLink
+options:
+  bundleIdPrefix: org.exploreros
+  deploymentTarget:
+    iOS: "17.0"
+    macOS: "14.0"
+packages:
+  ExplorerLink:
+    path: .
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    CURRENT_PROJECT_VERSION: "3"
+    MARKETING_VERSION: "0.1.0"
+    CODE_SIGN_STYLE: Automatic
+    GENERATE_INFOPLIST_FILE: YES
+targets:
+  ExplorerLink:
+    type: application
+    platform: iOS
+    sources: [iOS, Shared]
+    dependencies:
+      - package: ExplorerLink
+        product: ExplorerLinkCore
+    info:
+      path: iOS/Info.plist
+      properties:
+        CFBundleDisplayName: Explorer Link
+        CFBundleURLTypes:
+          - CFBundleURLName: org.exploreros.ExplorerLink.preview
+            CFBundleURLSchemes: [explorerlink]
+        LSApplicationQueriesSchemes: [shortcuts]
+        NSBluetoothAlwaysUsageDescription: Connect to your paired Glass bridge and send encrypted cards and directions.
+        NSLocalNetworkUsageDescription: Connect to your Glass or local simulated Glass endpoint over Wi-Fi.
+        NSLocationWhenInUseUsageDescription: Use your current location to calculate route steps you choose to send to Glass.
+        NSMicrophoneUsageDescription: Capture dictation you explicitly start and send it to Glass.
+        NSSpeechRecognitionUsageDescription: Transcribe your own dictation on-device for display on Glass.
+        NSCalendarsFullAccessUsageDescription: Read upcoming events only when you choose to send them to Glass.
+        NSRemindersFullAccessUsageDescription: Read unfinished reminders only when you choose to send them to Glass.
+        UIBackgroundModes: [bluetooth-peripheral]
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: org.exploreros.ExplorerLink
+        TARGETED_DEVICE_FAMILY: "1,2"
+        SUPPORTS_MACCATALYST: NO
+  ExplorerTools:
+    type: application
+    platform: macOS
+    sources: [macOS, Shared]
+    dependencies:
+      - package: ExplorerLink
+        product: ExplorerFlashCore
+      - package: ExplorerLink
+        product: ExplorerLinkCore
+    info:
+      path: macOS/Info.plist
+      properties:
+        CFBundleDisplayName: Explorer Tools
+        LSApplicationCategoryType: public.app-category.developer-tools
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: org.exploreros.ExplorerTools
+        ENABLE_APP_SANDBOX: NO
+schemes:
+  ExplorerLink:
+    build:
+      targets:
+        ExplorerLink: all
+  ExplorerTools:
+    build:
+      targets:
+        ExplorerTools: all

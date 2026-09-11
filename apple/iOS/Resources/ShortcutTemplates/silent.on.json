@@ -1,0 +1,1 @@
+{"id":"silent.on","name":"Explorer Silent On","summary":"Turn Silent Mode on after foreground review; Action Button assignment stays user controlled.","foreground_review":true,"actions":[{"kind":"system_action","label":"Set Silent Mode","parameters":{"turn":"on"}}]}

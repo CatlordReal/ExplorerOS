@@ -1,0 +1,1 @@
+{"id":"focus.on","name":"Explorer Focus On","summary":"Turn on built-in Do Not Disturb when the user runs the shortcut.","foreground_review":true,"actions":[{"kind":"system_action","label":"Set Focus","parameters":{"action_id":"is.workflow.actions.dnd.set","Enabled":1,"focus":"Do Not Disturb"}}]}

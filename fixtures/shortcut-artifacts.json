@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "verification": "AEA signature verified with embedded public certificate; decoded workflow reviewed for action and token bindings. This is artifact integrity, not an iPhone execution test.",
+  "artifacts": [
+    {
+      "binary_sha256": "984a085d5bcb79b10a0181cb21d9e979239cdda6255012b31cee383a45cdf589",
+      "decoded_workflow_sha256": "0f12ccbcf1b8167016b38f949e8ccf858b113904d83135c0a99e8c6109fdd74f",
+      "file": "Explorer Browse Notes.shortcut"
+    },
+    {
+      "binary_sha256": "a9d4c7452528e5f8a8d152160135fbb173c727f9511d52b0f4eb5cde23c0d0df",
+      "decoded_workflow_sha256": "df5fe06f6f1c7605bad80246b0416093566f4ce7eb209d0ff1ff319b2ccdf312",
+      "file": "Explorer Create Note.shortcut"
+    },
+    {
+      "binary_sha256": "c00b445342e0a3b40828331dae33e1c98f7e8489866f49e30e5e6060d11a5241",
+      "decoded_workflow_sha256": "d0413a8026d25c355fc054d33e9e5a780d84e879e6d42778811095b08a51b2b2",
+      "file": "Explorer Focus Off.shortcut"
+    },
+    {
+      "binary_sha256": "fb0cb0b94b96ea217f5b086f364f4616f06cf888596286093d0c23d5c822b94f",
+      "decoded_workflow_sha256": "2108987b1e643f9c78af1fa8ba338aa3d713803bd13c20e5a2c16398f6840fd9",
+      "file": "Explorer Focus On.shortcut"
+    },
+    {
+      "binary_sha256": "309d1321b131e44b3437305b4c0151431f770ad7b0ede940906d88e188f114ac",
+      "decoded_workflow_sha256": "2e2f8644d5c504e0036d4f4b99cab0c0427dc66ea196592a0a1933bce3128def",
+      "file": "Explorer Recognize Music.shortcut"
+    },
+    {
+      "binary_sha256": "10722fd0debcb5db706f9feea8c2120db2723cbdf040572c8c15269315d93523",
+      "decoded_workflow_sha256": "80fd598cf440994c711001e8beeca39faf56857f2b751dd351c96c0ebdffe0f2",
+      "file": "Explorer Silent Off.shortcut"
+    },
+    {
+      "binary_sha256": "d7af33d65d1731685a69e87cf8a11a88797d0fade25ccedf44724e29be360955",
+      "decoded_workflow_sha256": "86ec5207591de6a832927bee378e64e95c17213c9feb332f18a0baa82d31e080",
+      "file": "Explorer Silent On.shortcut"
+    },
+    {
+      "binary_sha256": "9bfe474f46faff25cc3ed72ceef7a867fee45b6438fa55eaf6e093e1aaa694ca",
+      "decoded_workflow_sha256": "4dc4fc6edd10f9d8eb7a60d7c314992d9236f4c3e42f7b6c408e8ba431e419d6",
+      "file": "Explorer Weather.shortcut"
+    }
+  ]
+}

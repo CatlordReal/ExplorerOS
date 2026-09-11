@@ -1,0 +1,36 @@
+{
+  "id": "notes.create",
+  "name": "Explorer Create Note",
+  "summary": "Enter text, review the Explorer Link draft, then tap Save as note to save locally. Does not create an Apple Note.",
+  "availability": "public_app_url_contract",
+  "foreground_review": true,
+  "actions": [
+    {
+      "kind": "system_action",
+      "label": "Ask for Input",
+      "parameters": {
+        "type": "Text",
+        "prompt": "Quick note"
+      }
+    },
+    {
+      "kind": "system_action",
+      "label": "URL Encode",
+      "parameters": {
+        "mode": "Encode",
+        "input": "provided_input"
+      }
+    },
+    {
+      "kind": "open_url",
+      "label": "Open Explorer Link preview",
+      "parameters": {
+        "url": "explorerlink://preview?text={percent_encoded_note_text}",
+        "receiver_limit_utf8_bytes": 4096,
+        "oversize": "receiver_rejects",
+        "save": "user_taps_save_as_note",
+        "send": "user_taps_send"
+      }
+    }
+  ]
+}

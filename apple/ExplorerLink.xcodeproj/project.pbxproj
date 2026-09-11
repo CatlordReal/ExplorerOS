@@ -1,0 +1,572 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		00C0DD148360F4AD451C95EA /* Explorer Weather.shortcut in Resources */ = {isa = PBXBuildFile; fileRef = E8587D76612B51823F149232 /* Explorer Weather.shortcut */; };
+		090BE052C46E11C184494400 /* ExplorerLinkCore in Frameworks */ = {isa = PBXBuildFile; productRef = B090F620B5486C5A2968E88B /* ExplorerLinkCore */; };
+		1571B6959ACE800600A13235 /* focus.off.json in Resources */ = {isa = PBXBuildFile; fileRef = D0B1191EA9550C39CA5700EF /* focus.off.json */; };
+		1A0F5BE2258D523919786D1F /* CompanionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15283875CFCB39806D139C49 /* CompanionModel.swift */; };
+		1C2F98BB24287119345F3A87 /* Explorer Create Note.shortcut in Resources */ = {isa = PBXBuildFile; fileRef = 461D0745CCDAB4A571FC471A /* Explorer Create Note.shortcut */; };
+		2082CED0F4D4D3B79844BF25 /* notes.create.json in Resources */ = {isa = PBXBuildFile; fileRef = 0D1C3C24612A259F65C9351E /* notes.create.json */; };
+		21CE8F562C0941943945ECD8 /* PhoneIntegrations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D17F9326A0C90B6F24E94AB /* PhoneIntegrations.swift */; };
+		22446142C69224994B230C5D /* Explorer Recognize Music.shortcut in Resources */ = {isa = PBXBuildFile; fileRef = 2A1289B32CFF0316A8A5961E /* Explorer Recognize Music.shortcut */; };
+		37E93AFF2CB7554419E647AA /* LinkTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCE86543C26A86910FFAFF16 /* LinkTransport.swift */; };
+		44E8F7649E471B40EEC01150 /* Explorer Silent Off.shortcut in Resources */ = {isa = PBXBuildFile; fileRef = 2305BBDB45B8ACB7D6B50230 /* Explorer Silent Off.shortcut */; };
+		4F65423306AEEB2B636CC3D8 /* Explorer Focus On.shortcut in Resources */ = {isa = PBXBuildFile; fileRef = DC35309597E0395228F246C0 /* Explorer Focus On.shortcut */; };
+		737CDCE159DE3B0AE712538B /* Themes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F38BE1173C8EBC56884557F /* Themes.swift */; };
+		7D3FB44C86D33F1D6D80E988 /* ExplorerToolsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64ABD0A1032284801E53E268 /* ExplorerToolsApp.swift */; };
+		7E5BFF4ED672DF685E7289C3 /* notes.browse.json in Resources */ = {isa = PBXBuildFile; fileRef = 37255E0DC191BDCD22E6593E /* notes.browse.json */; };
+		81A8E7422A2E399F64E9B006 /* ExplorerLinkCore in Frameworks */ = {isa = PBXBuildFile; productRef = 9F480392E76AD04D221C32FF /* ExplorerLinkCore */; };
+		820B41EA61A8DCDA53966283 /* KeychainStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81BBCAA19FD1BEC2A530032D /* KeychainStore.swift */; };
+		8948813884E9FF172A798753 /* silent.on.json in Resources */ = {isa = PBXBuildFile; fileRef = ACC19083DD6C171CD4EEE0AD /* silent.on.json */; };
+		8CAE6E2B130DDC859EBEC406 /* Explorer Browse Notes.shortcut in Resources */ = {isa = PBXBuildFile; fileRef = C47D003957CAE88A199E9E3F /* Explorer Browse Notes.shortcut */; };
+		8E8EAD055B5C8032E2A3A447 /* GlassIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01CBEFD8BEFCEFFCBF7CF807 /* GlassIntents.swift */; };
+		94492A7182FA09568B6DF24D /* ExplorerLinkApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE954B35A185D46839099E6F /* ExplorerLinkApp.swift */; };
+		AC3C3AE74EB2A16A6ADD3A15 /* DirectionsAndSpeech.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16A7402494733FC7108E7A13 /* DirectionsAndSpeech.swift */; };
+		B9C26189C941346090487DD9 /* Themes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F38BE1173C8EBC56884557F /* Themes.swift */; };
+		BC8E060B9EED07EC69DA6E65 /* Explorer Silent On.shortcut in Resources */ = {isa = PBXBuildFile; fileRef = B555DBCA894F306745BE13D8 /* Explorer Silent On.shortcut */; };
+		C23D2AE8513DCD4667424AA3 /* silent.off.json in Resources */ = {isa = PBXBuildFile; fileRef = 88D8BC2D6D9261C5E1412052 /* silent.off.json */; };
+		CD297DD09B7F7DB9BF34B2D7 /* ExplorerFlashCore in Frameworks */ = {isa = PBXBuildFile; productRef = 8181A19183FA49B617E70074 /* ExplorerFlashCore */; };
+		D4A26A7F5EACC89016B9C6A2 /* PortableResources.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F65464283CBC19D882FF7C9 /* PortableResources.swift */; };
+		D7A427871C8CF391F4886359 /* focus.on.json in Resources */ = {isa = PBXBuildFile; fileRef = 27EB174D3A398C2D1AD0FE0E /* focus.on.json */; };
+		DEF3608AA1ADFE7101035301 /* PhoneUtilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E5AC9A3637C06EB617758F7 /* PhoneUtilities.swift */; };
+		FF9BB114BE6F75AF7C12DE0C /* Explorer Focus Off.shortcut in Resources */ = {isa = PBXBuildFile; fileRef = 6E821C0F52CB3DEBC883D3FD /* Explorer Focus Off.shortcut */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		01CBEFD8BEFCEFFCBF7CF807 /* GlassIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassIntents.swift; sourceTree = "<group>"; };
+		0C1DA6801C7D1FE44535713A /* apple */ = {isa = PBXFileReference; lastKnownFileType = folder; name = apple; path = .; sourceTree = SOURCE_ROOT; };
+		0D1C3C24612A259F65C9351E /* notes.create.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = notes.create.json; sourceTree = "<group>"; };
+		15283875CFCB39806D139C49 /* CompanionModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompanionModel.swift; sourceTree = "<group>"; };
+		16A7402494733FC7108E7A13 /* DirectionsAndSpeech.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectionsAndSpeech.swift; sourceTree = "<group>"; };
+		1D17F9326A0C90B6F24E94AB /* PhoneIntegrations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneIntegrations.swift; sourceTree = "<group>"; };
+		2305BBDB45B8ACB7D6B50230 /* Explorer Silent Off.shortcut */ = {isa = PBXFileReference; path = "Explorer Silent Off.shortcut"; sourceTree = "<group>"; };
+		27EB174D3A398C2D1AD0FE0E /* focus.on.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = focus.on.json; sourceTree = "<group>"; };
+		2A1289B32CFF0316A8A5961E /* Explorer Recognize Music.shortcut */ = {isa = PBXFileReference; path = "Explorer Recognize Music.shortcut"; sourceTree = "<group>"; };
+		2E5AC9A3637C06EB617758F7 /* PhoneUtilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneUtilities.swift; sourceTree = "<group>"; };
+		37255E0DC191BDCD22E6593E /* notes.browse.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = notes.browse.json; sourceTree = "<group>"; };
+		461D0745CCDAB4A571FC471A /* Explorer Create Note.shortcut */ = {isa = PBXFileReference; path = "Explorer Create Note.shortcut"; sourceTree = "<group>"; };
+		47F260FC931191FD9B659EFD /* ExplorerTools.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ExplorerTools.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		64ABD0A1032284801E53E268 /* ExplorerToolsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExplorerToolsApp.swift; sourceTree = "<group>"; };
+		6E821C0F52CB3DEBC883D3FD /* Explorer Focus Off.shortcut */ = {isa = PBXFileReference; path = "Explorer Focus Off.shortcut"; sourceTree = "<group>"; };
+		6F65464283CBC19D882FF7C9 /* PortableResources.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortableResources.swift; sourceTree = "<group>"; };
+		81BBCAA19FD1BEC2A530032D /* KeychainStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainStore.swift; sourceTree = "<group>"; };
+		88D8BC2D6D9261C5E1412052 /* silent.off.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = silent.off.json; sourceTree = "<group>"; };
+		8F38BE1173C8EBC56884557F /* Themes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Themes.swift; sourceTree = "<group>"; };
+		98869BC6A2FEBBB6126BEBEC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		ACC19083DD6C171CD4EEE0AD /* silent.on.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = silent.on.json; sourceTree = "<group>"; };
+		AE954B35A185D46839099E6F /* ExplorerLinkApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExplorerLinkApp.swift; sourceTree = "<group>"; };
+		B555DBCA894F306745BE13D8 /* Explorer Silent On.shortcut */ = {isa = PBXFileReference; path = "Explorer Silent On.shortcut"; sourceTree = "<group>"; };
+		BCE86543C26A86910FFAFF16 /* LinkTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinkTransport.swift; sourceTree = "<group>"; };
+		C47D003957CAE88A199E9E3F /* Explorer Browse Notes.shortcut */ = {isa = PBXFileReference; path = "Explorer Browse Notes.shortcut"; sourceTree = "<group>"; };
+		D0B1191EA9550C39CA5700EF /* focus.off.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = focus.off.json; sourceTree = "<group>"; };
+		DC35309597E0395228F246C0 /* Explorer Focus On.shortcut */ = {isa = PBXFileReference; path = "Explorer Focus On.shortcut"; sourceTree = "<group>"; };
+		E8587D76612B51823F149232 /* Explorer Weather.shortcut */ = {isa = PBXFileReference; path = "Explorer Weather.shortcut"; sourceTree = "<group>"; };
+		FCF28FF3D3BC4C71FDF748A1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		FD3833BCE15FC4F5DBFCA488 /* ExplorerLink.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ExplorerLink.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		2C356C82EA3ED6967A1172A5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				81A8E7422A2E399F64E9B006 /* ExplorerLinkCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EC204B17D545FF16F8AC5840 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CD297DD09B7F7DB9BF34B2D7 /* ExplorerFlashCore in Frameworks */,
+				090BE052C46E11C184494400 /* ExplorerLinkCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		3EB5BF4A093A43655A79BAC0 /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				0C1DA6801C7D1FE44535713A /* apple */,
+			);
+			name = Packages;
+			sourceTree = "<group>";
+		};
+		48F39FAE15BF42FA6AC7C461 = {
+			isa = PBXGroup;
+			children = (
+				4CF140667078785235579B28 /* iOS */,
+				653DE35E7A81B236C4D327BC /* macOS */,
+				3EB5BF4A093A43655A79BAC0 /* Packages */,
+				998417194782AE6F3734F32A /* Shared */,
+				7ACA8F03D92F05C808FD53C6 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		4CF140667078785235579B28 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				15283875CFCB39806D139C49 /* CompanionModel.swift */,
+				16A7402494733FC7108E7A13 /* DirectionsAndSpeech.swift */,
+				AE954B35A185D46839099E6F /* ExplorerLinkApp.swift */,
+				01CBEFD8BEFCEFFCBF7CF807 /* GlassIntents.swift */,
+				98869BC6A2FEBBB6126BEBEC /* Info.plist */,
+				81BBCAA19FD1BEC2A530032D /* KeychainStore.swift */,
+				BCE86543C26A86910FFAFF16 /* LinkTransport.swift */,
+				1D17F9326A0C90B6F24E94AB /* PhoneIntegrations.swift */,
+				2E5AC9A3637C06EB617758F7 /* PhoneUtilities.swift */,
+				9B3AE6680363B86300C88F2F /* Resources */,
+			);
+			path = iOS;
+			sourceTree = "<group>";
+		};
+		653DE35E7A81B236C4D327BC /* macOS */ = {
+			isa = PBXGroup;
+			children = (
+				64ABD0A1032284801E53E268 /* ExplorerToolsApp.swift */,
+				FCF28FF3D3BC4C71FDF748A1 /* Info.plist */,
+				6F65464283CBC19D882FF7C9 /* PortableResources.swift */,
+			);
+			path = macOS;
+			sourceTree = "<group>";
+		};
+		7ACA8F03D92F05C808FD53C6 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				FD3833BCE15FC4F5DBFCA488 /* ExplorerLink.app */,
+				47F260FC931191FD9B659EFD /* ExplorerTools.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		92E09FB1E169EB62A0831577 /* ShortcutTemplates */ = {
+			isa = PBXGroup;
+			children = (
+				C47D003957CAE88A199E9E3F /* Explorer Browse Notes.shortcut */,
+				461D0745CCDAB4A571FC471A /* Explorer Create Note.shortcut */,
+				6E821C0F52CB3DEBC883D3FD /* Explorer Focus Off.shortcut */,
+				DC35309597E0395228F246C0 /* Explorer Focus On.shortcut */,
+				2A1289B32CFF0316A8A5961E /* Explorer Recognize Music.shortcut */,
+				2305BBDB45B8ACB7D6B50230 /* Explorer Silent Off.shortcut */,
+				B555DBCA894F306745BE13D8 /* Explorer Silent On.shortcut */,
+				E8587D76612B51823F149232 /* Explorer Weather.shortcut */,
+				D0B1191EA9550C39CA5700EF /* focus.off.json */,
+				27EB174D3A398C2D1AD0FE0E /* focus.on.json */,
+				37255E0DC191BDCD22E6593E /* notes.browse.json */,
+				0D1C3C24612A259F65C9351E /* notes.create.json */,
+				88D8BC2D6D9261C5E1412052 /* silent.off.json */,
+				ACC19083DD6C171CD4EEE0AD /* silent.on.json */,
+			);
+			path = ShortcutTemplates;
+			sourceTree = "<group>";
+		};
+		998417194782AE6F3734F32A /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				8F38BE1173C8EBC56884557F /* Themes.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		9B3AE6680363B86300C88F2F /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				92E09FB1E169EB62A0831577 /* ShortcutTemplates */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		3F48E2EB19F3C008B072FCBA /* ExplorerTools */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1B799D535028B49838D2FD00 /* Build configuration list for PBXNativeTarget "ExplorerTools" */;
+			buildPhases = (
+				A3F1F7ABFC4B9F6AA312520A /* Sources */,
+				EC204B17D545FF16F8AC5840 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ExplorerTools;
+			packageProductDependencies = (
+				8181A19183FA49B617E70074 /* ExplorerFlashCore */,
+				B090F620B5486C5A2968E88B /* ExplorerLinkCore */,
+			);
+			productName = ExplorerTools;
+			productReference = 47F260FC931191FD9B659EFD /* ExplorerTools.app */;
+			productType = "com.apple.product-type.application";
+		};
+		FAE342B75BA652C600E218AD /* ExplorerLink */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D322B9EDAD5B14069F7CA16E /* Build configuration list for PBXNativeTarget "ExplorerLink" */;
+			buildPhases = (
+				B23BB492BB13C283554AD1DF /* Sources */,
+				499CF39AFEF95D1567AD2CD7 /* Resources */,
+				2C356C82EA3ED6967A1172A5 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ExplorerLink;
+			packageProductDependencies = (
+				9F480392E76AD04D221C32FF /* ExplorerLinkCore */,
+			);
+			productName = ExplorerLink;
+			productReference = FD3833BCE15FC4F5DBFCA488 /* ExplorerLink.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		8FA97217714FCDE0DA4137DD /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					3F48E2EB19F3C008B072FCBA = {
+						ProvisioningStyle = Automatic;
+					};
+					FAE342B75BA652C600E218AD = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 1E0DECC16A398B77A6275D9D /* Build configuration list for PBXProject "ExplorerLink" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 48F39FAE15BF42FA6AC7C461;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				0584A0FA0D881329D7863B72 /* XCLocalSwiftPackageReference "." */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 7ACA8F03D92F05C808FD53C6 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				FAE342B75BA652C600E218AD /* ExplorerLink */,
+				3F48E2EB19F3C008B072FCBA /* ExplorerTools */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		499CF39AFEF95D1567AD2CD7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8CAE6E2B130DDC859EBEC406 /* Explorer Browse Notes.shortcut in Resources */,
+				1C2F98BB24287119345F3A87 /* Explorer Create Note.shortcut in Resources */,
+				FF9BB114BE6F75AF7C12DE0C /* Explorer Focus Off.shortcut in Resources */,
+				4F65423306AEEB2B636CC3D8 /* Explorer Focus On.shortcut in Resources */,
+				22446142C69224994B230C5D /* Explorer Recognize Music.shortcut in Resources */,
+				44E8F7649E471B40EEC01150 /* Explorer Silent Off.shortcut in Resources */,
+				BC8E060B9EED07EC69DA6E65 /* Explorer Silent On.shortcut in Resources */,
+				00C0DD148360F4AD451C95EA /* Explorer Weather.shortcut in Resources */,
+				1571B6959ACE800600A13235 /* focus.off.json in Resources */,
+				D7A427871C8CF391F4886359 /* focus.on.json in Resources */,
+				7E5BFF4ED672DF685E7289C3 /* notes.browse.json in Resources */,
+				2082CED0F4D4D3B79844BF25 /* notes.create.json in Resources */,
+				C23D2AE8513DCD4667424AA3 /* silent.off.json in Resources */,
+				8948813884E9FF172A798753 /* silent.on.json in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A3F1F7ABFC4B9F6AA312520A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7D3FB44C86D33F1D6D80E988 /* ExplorerToolsApp.swift in Sources */,
+				D4A26A7F5EACC89016B9C6A2 /* PortableResources.swift in Sources */,
+				B9C26189C941346090487DD9 /* Themes.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B23BB492BB13C283554AD1DF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1A0F5BE2258D523919786D1F /* CompanionModel.swift in Sources */,
+				AC3C3AE74EB2A16A6ADD3A15 /* DirectionsAndSpeech.swift in Sources */,
+				94492A7182FA09568B6DF24D /* ExplorerLinkApp.swift in Sources */,
+				8E8EAD055B5C8032E2A3A447 /* GlassIntents.swift in Sources */,
+				820B41EA61A8DCDA53966283 /* KeychainStore.swift in Sources */,
+				37E93AFF2CB7554419E647AA /* LinkTransport.swift in Sources */,
+				21CE8F562C0941943945ECD8 /* PhoneIntegrations.swift in Sources */,
+				DEF3608AA1ADFE7101035301 /* PhoneUtilities.swift in Sources */,
+				737CDCE159DE3B0AE712538B /* Themes.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		154291D1AA48A83909928A17 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 3;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 0.1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		49E529DE16F6B0B48D26C24C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = iOS/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.exploreros.ExplorerLink;
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		516D53E7B91226C705120B19 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = iOS/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.exploreros.ExplorerLink;
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		5CF30EF3633EA8DF1CDF3C2D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_APP_SANDBOX = NO;
+				INFOPLIST_FILE = macOS/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.exploreros.ExplorerTools;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		C10DBD9BEF2B16A256DEB633 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 3;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 0.1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		C7345ECD006D74F99361E1FF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_APP_SANDBOX = NO;
+				INFOPLIST_FILE = macOS/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.exploreros.ExplorerTools;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1B799D535028B49838D2FD00 /* Build configuration list for PBXNativeTarget "ExplorerTools" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C7345ECD006D74F99361E1FF /* Debug */,
+				5CF30EF3633EA8DF1CDF3C2D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		1E0DECC16A398B77A6275D9D /* Build configuration list for PBXProject "ExplorerLink" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				154291D1AA48A83909928A17 /* Debug */,
+				C10DBD9BEF2B16A256DEB633 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		D322B9EDAD5B14069F7CA16E /* Build configuration list for PBXNativeTarget "ExplorerLink" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				49E529DE16F6B0B48D26C24C /* Debug */,
+				516D53E7B91226C705120B19 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		0584A0FA0D881329D7863B72 /* XCLocalSwiftPackageReference "." */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = .;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		8181A19183FA49B617E70074 /* ExplorerFlashCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ExplorerFlashCore;
+		};
+		9F480392E76AD04D221C32FF /* ExplorerLinkCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ExplorerLinkCore;
+		};
+		B090F620B5486C5A2968E88B /* ExplorerLinkCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ExplorerLinkCore;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 8FA97217714FCDE0DA4137DD /* Project object */;
+}
