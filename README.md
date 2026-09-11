@@ -3,6 +3,18 @@
 # ExplorerOS
 Completely free custom ROM for Google Glass **Explorer Edition**
 
+## Apple companion fork
+
+This fork adds an API 19 iPhone service to ExplorerOS, a Swift iPhone companion, a portable native Mac installer, and a Python/Qt simulated Glass endpoint. The derived firmware preinstalls the service: after one-time pairing, it starts at boot and presents incoming cards without opening an app. The launcher, kernel, recovery, and existing firmware files are preserved.
+
+Start with [Apple setup and build instructions](docs/APPLE.md), [firmware integration](docs/FIRMWARE-INTEGRATION.md), [portable Mac package](docs/PORTABLE-MAC.md), [Glass setup](docs/GLASS.md), and [simulator](docs/SIMULATOR.md). [Current validation](docs/VALIDATION.md) and [hardware verification](docs/HARDWARE.md) distinguish tested software from unverified Glass hardware behavior.
+
+The service can also be installed or updated as an APK on an existing compatible system. The optional derived firmware remains a CWM recovery backup and requires a manual restore; see [UPSTREAM-INSTALLER.md](docs/UPSTREAM-INSTALLER.md). The Mac app bundles the service, USB tools, firmware, checksums, and instructions for personal transfer. Its separate raw-partition planner cannot install CWM backups. No physical Glass writes or flashing validation have been performed. Do not substitute guessed images, partitions, or recovery commands.
+
+Notifications and media use Glass-side ANCS/AMS GATT clients. The iPhone app cannot read other apps' notifications or global Siri transcripts. A guarded Camera-button adapter requests Siri through the existing stock Glass HFP/SCO service while a companion card is open. Actual Siri playback and microphone operation require real-device testing; the original launcher's Camera binding is unchanged. See [headset research](docs/FEASIBILITY-HFP.md) and [capability research](docs/FEASIBILITY.md).
+
+The companion supports MapKit route steps, App Intents, local Quick Notes, phone status, calendar/reminder cards, and Glass requests for Focus, silent-mode, and Notes shortcuts. Signed Weather, Recognize Music, and Browse Notes presets return selected text to a draft for sending to Glass. Shortcut imports and Glass requests require review on iPhone. Mail integration is excluded because inbox reading on Glass is unavailable. Arbitrary dictated replies to other apps' notifications are not exposed by the public APIs used here. See [integrations](docs/INTEGRATIONS.md).
+
 # Introduction
 
 I made this custom ROM to bring Google Glass back to life after more than 13 years. It's based on the latest XE24, with some optimization tweaks from me, plus a completely new launcher.
