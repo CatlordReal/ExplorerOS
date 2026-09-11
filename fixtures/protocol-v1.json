@@ -1,0 +1,23 @@
+{
+  "purpose": "TEST-ONLY deterministic cross-language AES-256-GCM vector; never provision this key.",
+  "key_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+  "aad_utf8": "ExplorerLink/1",
+  "initiator_hello": "fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210",
+  "responder_hello": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+  "plaintext": {
+    "challenge": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+    "seq": 1,
+    "type": "card",
+    "payload": {
+      "title": "Fixture hello",
+      "body": "Explorer Link v1 test-only vector",
+      "source": "companion"
+    }
+  },
+  "nonce_b64": "ABEiM0RVZneImaq7",
+  "encrypted_packet": {
+    "v": 1,
+    "nonce": "ABEiM0RVZneImaq7",
+    "box": "oaST2y4LJ3sGB6U+QK6yDAsxh2AkXUOO6+11lPTWLopKs9xei2ydYBk0puzmFR24d42gH/dfK1ifW0j+6AuNOpoP5Wqo1JbIvWhEU/RL+2nX7J82HZ0Jw/QkiZSOxe5KHuHE7TZUGaPBzPAnLVnZJA/IxlQ07bIdjaBc5eZGth7jwnQlBdfA135EkCrK2ahs3gN00OabYCvg4EjI13tSUNxtSAb1wBgRnvIMLRK0OuMj/SSe8SAtAne+GAQjH2FCQCDKsv6JTsa9eBhUxqkRXsuAy5XsJl6aN14="
+  }
+}

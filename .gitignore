@@ -1,0 +1,17 @@
+.DS_Store
+.build/
+build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+.gradle/
+local.properties
+__pycache__/
+.venv/
+.cache/
+*.key
+pairing.json
+artifacts/
+tools-cache/
+*.log
+docs/WORKPLAN.md
