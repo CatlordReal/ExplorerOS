@@ -8,20 +8,27 @@ Glass hardware or firmware restoration. No Glass was connected or written to.
 - Python protocol/media simulator: 26 tests pass, including actual encrypted
   socket transfers, opt-in withdrawal, backpressure, malformed payloads, source
   mutation and reconnects.
-- Firmware builder: 3 tests pass for archive preservation and invalid inputs.
+- Firmware builder and structural auditor: 14 tests pass, covering preservation,
+  Android boot headers and SHA-1 IDs, bounded gzip/newc parsing, GNU tar names,
+  traversal, link parents, CRC/MD5 damage and missing partitions.
 - Glass JVM `CoreTest`, `TransportTest`, and `MediaTransferTest`: pass.
-- Swift: 59 cases, zero failures. One optional local archive case was skipped in
-  the complete suite and then passed separately against the current firmware ZIP.
+- Swift: 74 cases, zero failures, with the optional current firmware case enabled
+  and exercising the production snapshot, flat extraction, and checksum path.
   Coverage includes bounded media schemas/vault recovery, backup inventory and
   executable revalidation, strict ZIP admission, timeouts, cancellation, and a
   valid raw-flash plan making zero runner calls.
+- The 14 new Swift recovery fault methods cover 78 parameter scenarios, including
+  serial loss/replacement, mount/storage drift, every upload slot, timeout,
+  cancellation, partial transfers, publication failures and local FIFO rejection.
+  Scenarios are not counted as separate XCTest test methods.
 - Eight signed Shortcut presets pass workflow, token and binary-hash checks.
 
 The full Swift suite used Xcode beta's native SwiftPM build system:
 
 ```sh
 cd apple
-DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer \
+EXPLORER_RECOVERY_ARCHIVE="$PWD/../artifacts/firmware/ExplorerOS-26PB3-ExplorerLink.zip" \
+  DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer \
   xcrun swift test --build-system native --scratch-path .build \
   --cache-path .cache --disable-sandbox
 ```
@@ -33,10 +40,20 @@ Independent review covered the Java sender, Swift receiver/storage/UI, Python
 endpoint, and Mac recovery core/UI. Storage-failure, overflow, capability and
 backup-revalidation findings were corrected and re-reviewed.
 
+The deeper audit exposed and corrected loss of the verified Mac backup during
+upload still reporting Prepared, cancellation at the final command response
+still reporting success, and a possible blocking FIFO open during local-file
+validation. Android observation expiration is now checked throughout preparation.
+Independent review also covered the new fault tests and structural auditor.
+The real archive test also caught and corrected rejection of CWM's three empty
+split-tar marker checksums. Seven regression scenarios preserve the mandatory
+payload/checksum checks and reject nonempty, duplicate or unknown marker entries.
+See [FIRMWARE-AUDIT.md](FIRMWARE-AUDIT.md) for scope, commands and limits.
+
 ## Builds and device installation
 
 The API 19 APK, iPhone Debug simulator app, signed iPhone Release build 4, and
-universal Mac Release build 5 all build successfully. The Mac supports arm64 and
+universal Mac Release build 6 all build successfully. The Mac supports arm64 and
 x86_64, with macOS 14 as its minimum; Intel runtime remains untested. The Qt 6
 endpoint's previous build/offscreen smoke check remains valid; Qt was unchanged.
 
@@ -100,8 +117,8 @@ generic dictated notification replies and readable Mail inbox integration are
 not provided. See [HARDWARE.md](HARDWARE.md), [MEDIA-SYNC.md](MEDIA-SYNC.md),
 [COMMUNITY-SAFETY.md](COMMUNITY-SAFETY.md), and [FEASIBILITY-HFP.md](FEASIBILITY-HFP.md).
 
-Direct iPhone USB-C flashing is not implemented. Apple's USBDriverKit is available
-on macOS and M-series iPads, not iPhone; External Accessory sessions require an
-accessory protocol and do not expose generic ADB/Fastboot USB interfaces.
-[USBDriverKit](https://developer.apple.com/documentation/usbdriverkit) ·
-[External Accessory](https://developer.apple.com/documentation/externalaccessory)
+Direct iPhone USB-C flashing is not implemented, and no public generic iPhone USB
+ADB/Fastboot route was found. This is not an absolute impossibility claim: the
+boot ramdisk contains PTP camera-mode rules, and preconfigured TCP networking or
+an external USB-host bridge are distinct possible research paths. None establishes
+a direct USB firmware installer. See [IPHONE-FIRMWARE-OPTIONS.md](IPHONE-FIRMWARE-OPTIONS.md).

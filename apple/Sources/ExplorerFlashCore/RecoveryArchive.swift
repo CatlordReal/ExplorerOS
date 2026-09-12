@@ -73,17 +73,21 @@ struct RecoveryArchive {
         let url = directory.appendingPathComponent("nandroid.md5")
         guard try regularSize(url) <= 4096, let text = String(data: try Data(contentsOf: url), encoding: .ascii) else { throw invalid("Invalid CWM checksum file.") }
         let required: Set<String> = ["boot.img", "cache.ext4.tar.a", "data.ext4.tar.a", "recovery.img", "system.ext4.tar.a"]
+        let markers: Set<String> = ["cache.ext4.tar", "data.ext4.tar", "system.ext4.tar"]
+        for name in markers {
+            guard try regularSize(directory.appendingPathComponent(name)) == 0 else { throw invalid("CWM split-tar markers must be empty.") }
+        }
         var seen = Set<String>()
         for line in text.split(separator: "\n") {
             let fields = line.split(whereSeparator: { $0.isWhitespace }).map(String.init)
-            guard fields.count == 2, required.contains(fields[1]), seen.insert(fields[1]).inserted,
+            guard fields.count == 2, required.union(markers).contains(fields[1]), seen.insert(fields[1]).inserted,
                   fields[0].range(of: "^[a-fA-F0-9]{32}$", options: .regularExpression) != nil else { throw invalid("Unexpected CWM checksum entry.") }
             let file = try FileHandle(forReadingFrom: directory.appendingPathComponent(fields[1])); defer { try? file.close() }
             var md5 = Insecure.MD5()
             while let data = try file.read(upToCount: 1024 * 1024), !data.isEmpty { md5.update(data: data) }
             guard md5.finalize().map({ String(format: "%02x", $0) }).joined() == fields[0].lowercased() else { throw invalid("CWM checksum mismatch: \(fields[1])") }
         }
-        guard seen == required else { throw invalid("CWM checksum entries are incomplete.") }
+        guard required.isSubset(of: seen) else { throw invalid("CWM checksum entries are incomplete.") }
     }
 
     /// Rejects ZIP64, encryption, links, special files, duplicate/local-only members, and ZIP bombs.

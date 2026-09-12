@@ -33,8 +33,8 @@ import SwiftUI
             guard let self else { return }
             defer { self.busy = false; self.operation = nil }
             do { try await action() }
-            catch is CancellationError { self.status = "Stopped. Partial copies were retained." }
-            catch { self.error = error.localizedDescription; self.status = "Stopped at this step." }
+            catch is CancellationError { self.status = "Cancellation requested. Recheck Glass before restoring." }
+            catch { self.error = error.localizedDescription; self.status = "Step failed. Recheck Glass before restoring." }
         }
     }
     func inspect(adb: URL, serial: String) {

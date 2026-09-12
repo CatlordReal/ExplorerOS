@@ -1,6 +1,6 @@
 # Explorer Tools for another Mac
 
-Explorer Tools v0.1.0 (build 5) is an offline personal transfer package.
+Explorer Tools v0.1.0 (build 6) is an offline personal transfer package.
 Copy `Explorer-Tools-Portable.zip` to your other Mac and unzip it. Move
 `Explorer Tools.app` to Applications, then open it. macOS 14 or later is required.
 The universal application and bundled USB tools support Apple silicon and Intel;
@@ -58,8 +58,9 @@ this ZIP nor its `*.tar.a` files should be flashed as raw images.
    exact inventory, file identities and hashes are checked again before staging.
 4. Choose **Copy firmware to Glass**, then confirm. The app verifies the bundled
    ZIP, uses a new recovery folder, and checks every copied file before publishing
-   it. Existing backups stay in place. **Stop current step** cancels the copy;
-   partial files remain and must not be selected for restoration.
+   it. Existing backups stay in place. **Stop current step** requests cancellation;
+   a command already sent to Glass may still finish. Recheck Glass before any
+   restore. Partial files remain and must not be selected for restoration.
 5. The app reports **Prepared**, with an exact folder. It has not installed
    firmware. The final `backup and restore > restore > <prepared folder>` action
    remains on Glass and must wait until physical compatibility and recovery checks

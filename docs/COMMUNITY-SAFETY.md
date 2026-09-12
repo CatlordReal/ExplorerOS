@@ -15,6 +15,8 @@ No physical Glass installation or recovery test has been performed.
 2. The reported battery must be healthy, at least 70%, and between 0 and 45°C.
    This is a conservative preparation threshold, not a battery-health guarantee.
    The Android observation expires after 30 minutes. Keep power and USB stable.
+   Expiration is checked again during uploads, before publication and before a
+   Prepared result. Recovery does not provide a fresh Android battery reading.
 3. Choose the explicit reboot-to-recovery step. Identity and battery are checked
    again before the reboot. If no compatible CWM exists, stop; the app does not
    install or temporarily boot a replacement image.
@@ -28,7 +30,11 @@ No physical Glass installation or recovery test has been performed.
    ZIP, requires the exact ten-file layout, and extracts only regular flat files.
    It checks CWM MD5 values and stages a fresh ASCII UUID folder. Each copied file
    is checked by SHA-256; only a complete verified folder is published for recovery.
-   Existing backups are never deleted. Failed copies remain partial.
+   Existing backups are never deleted. Unfinished uploads remain partial.
+   The verified Mac backup is rechecked before publication and success; loss or
+   alteration of that copy prevents a Prepared result. A cancellation or transport
+   error can leave an already submitted remote rename completed; inspect Glass
+   before any restore and do not treat a folder name as a completion guarantee.
 6. The app shows the final folder for CWM's restore menu. Restoring remains an
    on-device operation and can overwrite boot, system, data, and cache, including
    personal data. Do not proceed without a working recovery procedure for the

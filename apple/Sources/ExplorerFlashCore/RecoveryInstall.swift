@@ -204,16 +204,19 @@ public actor RecoveryInstaller {
         _ = try await recheck(recovery, requiredBytes: remaining)
         try await safeParents(root: root, backups: backups)
         if let backupCopy { try validateBackupCopy(backupCopy) }
+        try validate(android)
         // mkdir without -p on the new leaf makes collision a failure. Existing paths are never removed.
         try await mutation("/sbin/mkdir -p \(backups) && /sbin/mkdir \(partial)")
         for entry in archive.entries {
             try Task.checkCancellation()
+            try validate(android)
             _ = try await recheck(recovery, requiredBytes: remaining)
             try await safeParents(root: root, backups: backups)
             try await requireDirectory(partial)
             try await absent(partial + "/" + entry.name)
             let file = archive.directory.appendingPathComponent(entry.name)
             guard try RecoveryArchive.hash(file) == entry.sha256 else { throw failure("Prepared local file changed: \(entry.name)") }
+            try validate(android)
             _ = try await runADB(["push", file.path, partial + "/" + entry.name], timeout: 600)
             try await verifyRemote(partial + "/" + entry.name, sha256: entry.sha256)
             remaining -= entry.size
@@ -227,9 +230,17 @@ public actor RecoveryInstaller {
         try await safeParents(root: root, backups: backups)
         try await requireDirectory(partial)
         try await absent(final)
+        // Uploads and hashing may be slow. The rollback copy and observation must
+        // still be valid when a staged folder becomes a completed backup.
+        if let backupCopy { try validateBackupCopy(backupCopy) }
+        try validate(android)
+        try Task.checkCancellation()
         try await mutation("/sbin/mv \(partial) \(final)")
         try await requireDirectory(final)
         for entry in archive.entries { try await verifyRemote(final + "/" + entry.name, sha256: entry.sha256) }
+        if let backupCopy { try validateBackupCopy(backupCopy) }
+        try validate(android)
+        try Task.checkCancellation()
         return RecoveryPreparation(recoveryFolder: final, verifiedFileCount: archive.entries.count)
     }
 
@@ -381,6 +392,7 @@ public actor RecoveryInstaller {
             throw failure("ADB changed since inspection. Select and check the tool again.")
         }
         let result = try await runner.run(ProcessCommand(executable: adb, arguments: (selected ? ["-s", serial] : []) + arguments, timeout: timeout))
+        try Task.checkCancellation()
         guard result.exitCode == 0 else { throw ExplorerFlashError.processFailed(result) }
         return result
     }

@@ -30,7 +30,9 @@ struct RecoveryLocalFile: Sendable, Equatable {
     }
 
     static func read(_ url: URL, maximumBytes: UInt64 = 8 * 1024 * 1024 * 1024) throws -> RecoveryLocalFile {
-        let descriptor = Darwin.open(url.path, O_RDONLY | O_NOFOLLOW | O_CLOEXEC)
+        // Do not block in open if a local path was replaced by a FIFO. The
+        // subsequent fstat still accepts regular files only.
+        let descriptor = Darwin.open(url.path, O_RDONLY | O_NOFOLLOW | O_CLOEXEC | O_NONBLOCK)
         guard descriptor >= 0 else { throw invalid() }
         let handle = FileHandle(fileDescriptor: descriptor, closeOnDealloc: true)
         defer { try? handle.close() }

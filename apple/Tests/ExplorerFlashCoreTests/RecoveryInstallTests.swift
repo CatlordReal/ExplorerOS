@@ -97,9 +97,41 @@ final class RecoveryInstallTests: XCTestCase {
         var bytes = try Data(contentsOf: valid); bytes[30] ^= 1; let changed = directory.appendingPathComponent("changed.zip"); try bytes.write(to: changed)
         XCTAssertThrowsError(try RecoveryArchive.inspectZIP(changed))
     }
-    func testLocalFirmwareLayoutWhenRequested() throws {
+    func testLocalFirmwareLayoutWhenRequested() async throws {
         guard let path = ProcessInfo.processInfo.environment["EXPLORER_RECOVERY_ARCHIVE"] else { throw XCTSkip("Optional local firmware layout check") }
-        XCTAssertEqual(try RecoveryArchive.inspectZIP(URL(fileURLWithPath: path)).count, 10)
+        let source = URL(fileURLWithPath: path)
+        XCTAssertEqual(try RecoveryArchive.inspectZIP(source).count, 10)
+        // Exercise the production snapshot, extraction and MD5/SHA verification
+        // against the real local ZIP. ProcessRunner runs archive tools only;
+        // this test never creates an installer or invokes ADB/Fastboot.
+        let archive = try await RecoveryArchive.open(source, expectedSHA256: RecoveryArchive.hash(source), runner: ProcessRunner())
+        defer { archive.cleanup() }
+        XCTAssertEqual(archive.entries.count, 10)
+        XCTAssertGreaterThan(archive.totalBytes, 0)
+    }
+    func testSplitTarMarkerChecksumsRequireEmptyMarkersAndCompletePayloads() async throws {
+        for variant in ["valid", "bad-marker-md5", "nonempty-marker", "unchecked-nonempty-marker", "duplicate", "missing-payload", "unexpected"] {
+            var files = backupFiles()
+            let empty = "d41d8cd98f00b204e9800998ecf8427e"
+            var lines = String(decoding: files["nandroid.md5"]!, as: UTF8.self).split(separator: "\n").map(String.init)
+            if variant != "unchecked-nonempty-marker" {
+                lines += ["cache.ext4.tar", "data.ext4.tar", "system.ext4.tar"].map { empty + "  " + $0 }
+            }
+            if variant == "bad-marker-md5" { lines[lines.count - 1] = String(repeating: "0", count: 32) + "  system.ext4.tar" }
+            if variant == "nonempty-marker" || variant == "unchecked-nonempty-marker" { files["system.ext4.tar"] = Data("unexpected payload".utf8) }
+            if variant == "duplicate" { lines.append(lines[0]) }
+            if variant == "missing-payload" { lines.removeAll { $0.hasSuffix("  boot.img") } }
+            if variant == "unexpected" { lines.append(empty + "  recovery.log") }
+            files["nandroid.md5"] = Data((lines.joined(separator: "\n") + "\n").utf8)
+            let source = try archive(files.sorted(by: { $0.key < $1.key }).map { ($0.key, $0.value) })
+            do {
+                let opened = try await RecoveryArchive.open(source, expectedSHA256: RecoveryArchive.hash(source), runner: ProcessRunner())
+                defer { opened.cleanup() }
+                XCTAssertEqual(variant, "valid", "Accepted \(variant)")
+            } catch {
+                XCTAssertNotEqual(variant, "valid", "Rejected real CWM marker layout: \(error)")
+            }
+        }
     }
     func testOffDeviceBackupSupportsSplitPartsAndVerifiesAllFiles() async throws {
         let fake = RecoveryFake(); let (installer, _, recovery) = try await session(fake)
@@ -186,7 +218,7 @@ final class RecoveryInstallTests: XCTestCase {
     }
 }
 
-private final class RecoveryFake: ProcessRunning, @unchecked Sendable {
+final class RecoveryFake: ProcessRunning, @unchecked Sendable {
     static let recovery = Data("synthetic pinned recovery".utf8)
     static let fstab = Data("synthetic pinned fstab".utf8)
     var commands: [ProcessCommand] = []
@@ -258,8 +290,8 @@ private final class RecoveryFake: ProcessRunning, @unchecked Sendable {
     }
 }
 
-private func sha(_ data: Data) -> String { SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined() }
-private func backupFiles(extraPart: Bool = false) -> [String: Data] {
+func sha(_ data: Data) -> String { SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined() }
+func backupFiles(extraPart: Bool = false) -> [String: Data] {
     var files = Dictionary(uniqueKeysWithValues: RecoveryArchive.names.map { ($0, Data(($0.hasSuffix(".tar") ? "" : "fixture " + $0).utf8)) })
     if extraPart { files["data.ext4.tar.b"] = Data("second part".utf8) }
     let checked = files.keys.filter { $0.hasSuffix(".img") || $0.hasSuffix(".a") || $0.hasSuffix(".b") }.sorted()
@@ -267,7 +299,7 @@ private func backupFiles(extraPart: Bool = false) -> [String: Data] {
     return files
 }
 
-private func makeZIP(_ items: [(String, Data)], mode: UInt32) -> Data {
+func makeZIP(_ items: [(String, Data)], mode: UInt32) -> Data {
     var local = Data(), central = Data()
     func crc(_ data: Data) -> UInt32 {
         var value: UInt32 = 0xffffffff

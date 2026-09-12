@@ -38,7 +38,7 @@ flash boot, system, recovery, radio, or bootloader partitions.
 
 ## Guided recovery preparation
 
-Explorer Tools v0.1.0 (build 5) provides five explicit steps:
+Explorer Tools v0.1.0 (build 6) provides five explicit steps:
 
 1. **Check Glass.** Connect while Android is running, enable USB debugging, and
    select its serial. The check requires Explorer Edition `Glass 1`, `glass-1`,
@@ -63,9 +63,15 @@ Explorer Tools v0.1.0 (build 5) provides five explicit steps:
    confirm restoration until the physical unit's compatibility and recovery path
    have been established.
 
-Stop current step cancels preparation work; copied files remain for diagnosis.
-Do not select partial folders in recovery. The Android identity/battery observation
-expires after 30 minutes; an expired observation requires a new Android check.
+Stop current step requests cancellation; copied files remain for diagnosis.
+Stopping the Mac's ADB process cannot prove an already submitted remote command
+stopped. A folder rename may finish on Glass after cancellation or a lost link.
+Recheck Glass and the folder before any later manual restore; do not restore a
+partial folder or infer completion from its name. The Android identity/battery
+observation expires after 30 minutes and is rechecked during uploads and before
+publication and success. An expired observation requires a new Android check.
+The verified Mac backup is revalidated before publication and before success;
+missing or changed backup files prevent a Prepared result.
 Device staging requires space for the remaining copy plus a 256 MiB reserve;
 this does not prove that restored contents fit their target partitions.
 
