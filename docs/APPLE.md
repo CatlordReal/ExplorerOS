@@ -5,7 +5,7 @@
 - `apple/iOS`: SwiftUI iOS 17+ companion. Wi-Fi, iPhone BLE peripheral, Keychain pairing, App Intents, MapKit route steps, and optional on-device app dictation.
 - `apple/macOS`: macOS 14+ utility for explicit ADB APK installation and reviewable fastboot image plans.
 - `apple/Sources/ExplorerLinkCore`: authenticated wire protocol, local endpoint policy, route/input state, and solar theme scheduling.
-- `apple/Sources/ExplorerFlashCore`: path/hash validation, device selection, argument-only command planning and bounded subprocess execution.
+- `apple/Sources/ExplorerFlashCore`: path/hash validation, device selection, argument-only command planning, bounded APK subprocess execution, and disabled raw-partition execution.
 
 Both apps provide the ten requested themes and Light/Dark/System chrome. Apple theme scheduling can use local coordinates or explicit fallback times. Location coordinates entered for themes stay local. Keychain supports one selected Glass pairing at a time.
 
@@ -47,9 +47,11 @@ The connection becomes connected only after decrypting a valid peer frame. Error
 
 ## Limits
 
+Glass photos and videos do not automatically transfer to iPhone. There is no camera-file transfer or Photos-library import implementation. AMS media support is for playback controls and track metadata. "Hey Siri" wake-word detection is not implemented.
+
 Wi-Fi can be suspended by iOS. Initial BLE advertising is foreground-dependent for Android discovery; background iOS advertising has different UUID rules. Automatic process restoration is not implemented; reopen/reconnect after termination. ANCS/AMS service availability, permissions, and actual XE24 Bluetooth support need physical verification.
 
-Neither App Intents nor this companion can capture global Siri transcripts, invoke system Siri on demand from an arbitrary incoming BLE message, or control unrelated Phone.app calls. The integrated Glass service has a guarded adapter to the stock HFP Hands-Free/SCO service; actual Siri playback and microphone operation still require hardware testing. See [FEASIBILITY-HFP.md](FEASIBILITY-HFP.md). Notification actions execute only when iOS supplies the corresponding action flag. No private iOS APIs are used.
+Neither App Intents nor this companion can capture global Siri transcripts, invoke system Siri on demand from an arbitrary incoming BLE message, or control unrelated Phone.app calls. The installed Glass service has a guarded adapter to the stock HFP Hands-Free/SCO service; actual Siri playback and microphone operation still require hardware testing. See [FEASIBILITY-HFP.md](FEASIBILITY-HFP.md). Notification actions execute only when iOS supplies the corresponding action flag. No private iOS APIs are used.
 
 ## Simulator-only integration hook
 

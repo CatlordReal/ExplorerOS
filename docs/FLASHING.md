@@ -1,33 +1,49 @@
-# Safe Mac flashing boundary
+# Mac firmware safety boundary
 
-`ExplorerFlashCore` prepares reviewable `fastboot`/`adb` argument arrays. It does not use a shell, unlock a bootloader, erase partitions, flash a bootloader/radio, discover a device automatically, or run during tests.
+Raw partition writing is disabled. `FlashExecutor.execute` always throws before
+calling a subprocess, including for an otherwise valid plan. No manifest, serial,
+acknowledgement, or UI setting can enable it. The Mac app has no firmware write
+button. Normal APK installation remains available separately.
 
-Static inspection of `ExplorerFlasher.exe` establishes an upstream CWM-backup recovery restore flow; see [UPSTREAM-INSTALLER.md](UPSTREAM-INSTALLER.md). It does not establish a safe hardware result, exact compatible device state, or a raw-partition image layout. Consequently, this project remains a generic image flasher. It cannot install an ExplorerOS CWM backup tar, infer the required recovery state, or derive an approved raw-partition manifest. No real-Glass flash has validated this utility.
+Static inspection of `ExplorerFlasher.exe` establishes an upstream CWM-backup
+restore flow; see [UPSTREAM-INSTALLER.md](UPSTREAM-INSTALLER.md). It does not establish
+a safe hardware result, a compatible device state, or approved raw-partition
+images. No physical Glass installation or recovery test has validated this utility.
 
-## Manifest
+## Read-only image review
 
-The selected JSON manifest lives beside its images. Only `boot`, `system`, and `recovery` partitions are permitted. Each image needs an exact byte size and lower/upper-case hexadecimal SHA-256. Paths are relative, must remain under the manifest directory, and must reference regular non-symlink files.
+`ExplorerFlashCore` can prepare argument arrays for review. A selected manifest
+must live beside its images. Only `boot`, `system`, and `recovery` partition names
+are permitted. Each file needs an exact size and SHA-256. Paths must remain under
+the manifest directory and reference regular non-symlink files. Review also checks
+explicit device selection and matching product metadata.
 
-```json
-{
-  "product": "glass_1",
-  "images": [
-    {"partition":"boot","file":"boot.img","sha256":"<64 hex characters>","size":123456},
-    {"partition":"system","file":"system.img","sha256":"<64 hex characters>","size":123456}
-  ]
-}
-```
+These checks establish file integrity and selection only. They do not inspect
+the image format, prove partition capacity, establish boot compatibility, or
+validate recovery. A ZIP or tar with matching metadata could pass those checks;
+the execution block still prevents it from being written. Never copy a generated
+command into a terminal as an installation instruction.
 
-`glass_1` is an example only. Confirm exact output of `fastboot getvar product` for the connected unit before creating a manifest. Flash planning refuses unsafe paths, links, bad hashes/sizes, duplicate or unsupported partitions, ambiguous/unrecognized devices, unauthorised ADB devices, and mismatched product.
+Enabling writes in a future release requires a validated device and image profile,
+format and partition-capacity checks, a tested recovery procedure, and a process
+lifecycle that cannot kill an active partition write on a generic timeout or quit.
+The existing bounded process runner must not be reused for raw flashing.
 
-## Required review and physical procedure
+## APK installation
 
-1. Select explicit `fastboot` and `adb` executable paths, one serial, a manifest, and optionally an APK.
-2. Review generated arrays, for example: `fastboot -s SERIAL getvar product`, then `fastboot -s SERIAL flash boot /absolute/boot.img`. Spaces stay inside one argument; no shell quoting is used.
-3. Read product, partition names, hashes, sizes, and device serial in review screen. Type the exact serial to authorize flashing.
-4. Immediately before first image, re-enumerate selected device and revalidate every image hash/size/path. Read product. Revalidate device and images again before every partition.
-5. Stop at first failed command. Never continue after an error. Reconnect/review from the beginning before another attempt.
+The separate installer uses `adb -s SERIAL install -r /absolute/ExplorerLink.apk`.
+It requires an explicitly selected authorized device and a regular non-symlink
+APK, and revalidates the selected device and file before execution. It does not
+flash boot, system, recovery, radio, or bootloader partitions.
 
-APK installation remains separate: `adb -s SERIAL install -r /absolute/Explorer Link.apk`. It targets an explicitly selected authorised ADB device and accepts only a regular non-symlink `.apk`.
+## CWM restoration
 
-Physical flashing can brick a Glass. Static/unit checks and simulator output do not prove XE24 bootloader state, USB cable stability, battery level, image compatibility, or recovery path. Keep a known-good recovery method available; do not flash until actual upstream release layout and device product have been verified.
+The bundled firmware remains a CWM recovery backup. A manual restore can rewrite
+boot, system, data and cache, including replacement of personal data. Installing a
+recovery is a separate firmware write. Preserving the original archive's entries
+does not mean those device partitions stay untouched.
+
+Firmware writes can brick Glass. The derived package has not been certified safe
+to restore. Use the APK on an existing compatible system for initial testing.
+Before considering a full restore, verify the exact unit and release, retain a
+device-specific backup, and establish a working recovery path on real hardware.

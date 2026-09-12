@@ -36,11 +36,14 @@ actions are sent only when their individual Notification Source flags permit
 them. AMS remote commands remain disabled until AMS reports their supported
 command bytes; received metadata is not logged or persisted.
 
-The preinstalled API 19 service can request voice recognition through the exact
-stock Glass HFP implementation. Standalone APKs keep this unavailable.
+The API 19 service can request voice recognition through the exact stock Glass
+HFP implementation, whether installed normally or preinstalled in the firmware.
 **Siri requested** means a request was sent; **Bluetooth voice audio** means the
 SCO route flag was observed during that request. Neither proves Siri listening
 or audible output. See [stock HFP gates and limitations](FEASIBILITY-HFP.md).
+"Hey Siri" wake-word detection and automatic transfer of Glass photos or videos
+to iPhone are not implemented. AMS media support controls playback and metadata;
+it does not transfer camera files.
 
 ## Build and test
 
@@ -153,9 +156,9 @@ JVM setup-barrier tests verify capabilities cannot become ready before all
 earlier GATT callbacks succeed, or after a failed callback.
 
 
-## Preinstalled background integration
+## Background integration
 
-On API 19, the preinstalled app receives `BOOT_COMPLETED` and
+After initial setup on API 19, the installed app receives `BOOT_COMPLETED` and
 `MY_PACKAGE_REPLACED`. It starts the foreground service only when a valid
 pairing key exists and **Background: On** is selected. A paired enabled service
 uses `START_STICKY` for OS restarts. Unpaired or disabled installs start no boot
@@ -195,7 +198,7 @@ Integration uses Android activities/services; there is no invented native
 launcher hook. Global camera-button interception while another app is active
 is not implemented. Camera gestures apply only to the visible card activity.
 Android versions with newer background-activity restrictions are not claimed
-as equivalent to the API 19 preinstalled target.
+as equivalent to the API 19 target.
 
 ## Phone actions and heartbeat
 
@@ -231,7 +234,7 @@ After first pairing or a bridge restart, reconnect the headset in system Bluetoo
 settings so the bridge observes a fresh, permission-filtered stock HFP connection.
 An existing sticky connection alone is insufficient. The adapter requires the exact
 audited stock Bluetooth APK, a bonded peer, no observed call, and no pre-existing
-SCO route. It refuses standalone installs or other system versions. It sends no
+SCO route. It refuses other system versions or a different stock APK. It sends no
 voice command at boot and never changes audio routing itself.
 
 The stock HFP/SCO service owns phone playback and microphone audio. Requests end

@@ -57,7 +57,7 @@ public final class StockVoiceAdapter {
     public StockVoiceAdapter(Context context, Handler handler, Events events) {
         this.context = context.getApplicationContext(); this.main = new Handler(handler.getLooper()); this.events = events;
         audio = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-        if (Build.VERSION.SDK_INT != 19 || (context.getApplicationInfo().flags & ApplicationInfo.FLAG_SYSTEM) == 0) return;
+        if (Build.VERSION.SDK_INT != 19) return;
         try {
             IntentFilter filter = new IntentFilter(HEADSET); filter.addAction(CALL);
             // Permission applies to the sender. The bridge does not need this privileged permission.

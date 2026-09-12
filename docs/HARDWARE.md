@@ -19,12 +19,12 @@ Test and record:
 
 ## Headset Siri research gate
 
-The preinstalled bridge can request voice recognition from the audited stock HFP Hands-Free service; see [FEASIBILITY-HFP.md](FEASIBILITY-HFP.md). On real Glass, verify pairing with iPhone as Audio Gateway, service-level negotiation, `AT+BVRA=1`, audible Siri playback, microphone capture, `AT+BVRA=0`, call interruption, timeout, and cleanup. Reconnect system Bluetooth once after bridge startup so its observer receives a fresh trusted connection event. The indicator reflects the observed Bluetooth audio route, not Siri's exact listening phase. Camera control applies inside the active bridge surface, not the unchanged ExplorerOS launcher. Obtain platform source and a reproducible recovery path before modifying the underlying Bluetooth/audio implementation.
+The installed bridge can request voice recognition from the audited stock HFP Hands-Free service; see [FEASIBILITY-HFP.md](FEASIBILITY-HFP.md). On real Glass, verify pairing with iPhone as Audio Gateway, service-level negotiation, `AT+BVRA=1`, audible Siri playback, microphone capture, `AT+BVRA=0`, call interruption, timeout, and cleanup. Reconnect system Bluetooth once after bridge startup so its observer receives a fresh trusted connection event. The indicator reflects the observed Bluetooth audio route, not Siri's exact listening phase. Camera control applies inside the active bridge surface, not the unchanged ExplorerOS launcher. Obtain platform source and a reproducible recovery path before modifying the underlying Bluetooth/audio implementation.
 
-Global Siri transcripts are unavailable through the public iOS APIs used here. App dictation is a separate user-started feature and must be tested as such.
+No always-listening "Hey Siri" detector is implemented. Global Siri transcripts are unavailable through the public iOS APIs used here. App dictation is a separate user-started feature and must be tested as such. The guarded HFP adapter can be tested using an ordinary APK installation when the audited stock Bluetooth package is present; no ROM flash is required.
 
 ## Before firmware work
 
 Read [UPSTREAM-INSTALLER.md](UPSTREAM-INSTALLER.md) and [FLASHING.md](FLASHING.md). Verify the exact release files and hashes, supported current bootloader/firmware, actual installation sequence, power/cable stability, and working restoration procedure. Do not assume the bundled recovery image is suitable merely because it exists. No valid ExplorerOS flash manifest is supplied while those facts remain unverified.
 
-The Mac app's checksum, serial, product and partition checks prevent common selection mistakes. They cannot prove that a correctly hashed image will boot or that a device can be recovered after interruption.
+Raw partition execution is disabled in the Mac app. Its read-only checksum, serial, product and partition checks do not validate image format, partition capacity, boot compatibility, or recovery. A CWM restore can overwrite boot, system, data and cache, including personal data. The build report's preservation checks compare archives only; they do not guarantee unchanged device partitions or a safe restore.

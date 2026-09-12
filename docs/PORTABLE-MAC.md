@@ -21,6 +21,10 @@ Keep normal macOS security settings enabled.
 
 Nothing installs or flashes on application launch. You can choose another APK
 to install your own compatible apps. The bridge is built for Android API 19.
+An ordinary APK installation also enables the guarded stock-HFP test path when
+the exact audited Bluetooth package is present. The bridge implements background
+startup after one-time pairing and opt-in; real boot/startup behavior remains
+untested. Neither implementation requires reflashing the ROM.
 
 ## Included firmware
 
@@ -32,7 +36,8 @@ hashes and unchanged-payload checks. Both formats remain CWM recovery backups.
 
 Use Firmware to verify the bundled archive and reveal it in Finder. The recorded
 SHA-256 detects changed local bytes; the publisher did not provide a signature.
-Do not feed this ZIP or its `*.tar.a` files to the raw-image flasher.
+Raw partition writing is disabled in this build. Advanced image review is
+read-only; neither this ZIP nor its `*.tar.a` files should be flashed as raw images.
 
 A full ExplorerOS installation still requires an appropriate working CWM
 recovery and manual backup/restore steps on Glass. The recovery inside the ZIP
@@ -41,6 +46,9 @@ This app does not choose between them, unlock the bootloader, erase existing
 backups, or automate recovery writes. See UPSTREAM-INSTALLER.md and HARDWARE.md
 in the bundle before attempting a firmware installation. Keep a recoverable
 backup of your current device. Firmware writes can brick Glass.
+A manual CWM restore can rewrite boot, system, data and cache and replace personal
+data. Unchanged files in the build report refer to the input archive, not to the
+partitions on your Glass. No zero-brick guarantee or validated recovery is supplied.
 
 This package is for the owner's local transfer. Public redistribution rights for
 all original firmware components have not been established; firmware binaries

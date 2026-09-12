@@ -2,7 +2,7 @@
 
 ## Implemented boundary
 
-The preinstalled API 19 bridge now has a narrow adapter for the unchanged stock
+The installed API 19 bridge has a narrow adapter for the unchanged stock
 Glass Hands-Free client. Camera press inside the bridge requests voice recognition;
 a second press cancels. Holding Camera requests it on long press and cancels on
 release. Leaving the bridge also cancels its own request. Camera events are not
@@ -14,6 +14,8 @@ routing, or modify the stock Bluetooth APK. The existing service sends `AT+BVRA=
 and `AT+BVRA=0`; its SCO path already contains phone playback and microphone input.
 Actual modern-iPhone Siri, audible playback, microphone quality, and Glass hardware
 operation remain untested. A successful local broadcast is not a Siri acknowledgement.
+There is no always-listening microphone service or "Hey Siri" wake-word detector.
+The implemented trigger is the Camera button while the bridge surface is active.
 
 The display initially says **Siri requested**. It changes to **Bluetooth voice audio**
 only while an owned request has an observed `AudioManager.isBluetoothScoOn()` route.
@@ -25,8 +27,8 @@ invented Listening indicator, transcript, or text reply implementation.
 
 `StockVoiceAdapter` requires all of these:
 
-- API 19 and a bridge installed as a system application; standalone APK installs
-  do not enable this integration.
+- API 19. Either an ordinary APK installation or the preinstalled bridge can use
+  this path; root and a ROM reflash are not required.
 - The enabled stock `com.google.glass.bluetooth` system package with the exact
   SHA-256 below. Hashing happens on a worker at startup and immediately before
   every outbound start/stop broadcast. Path, size, timestamp, call and bond gates
@@ -97,6 +99,9 @@ does not grant that permission; the dedicated privileged directory is distinct.
 This matches the [Android permission model](https://developer.android.com/guide/topics/manifest/permission-element).
 The adapter uses that permission only as a sender filter on its observer, relying
 on the stock Bluetooth package's declared use of it, and requests no new permission.
+The stock voice receiver does not require a sender permission. Removing the bridge's
+own system-app requirement therefore permits APK-first testing without relaxing
+the exact stock-package hash, system-package, bond, call, or audio-ownership gates.
 
 No proprietary code is copied into project source. No device commands, installation,
 flash, reboot, or live Bluetooth/audio test was performed for this adapter. JVM

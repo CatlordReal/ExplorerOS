@@ -62,6 +62,7 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: org.exploreros.ExplorerTools
+        CURRENT_PROJECT_VERSION: "4"
         ENABLE_APP_SANDBOX: NO
 schemes:
   ExplorerLink:

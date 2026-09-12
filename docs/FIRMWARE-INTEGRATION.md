@@ -1,10 +1,10 @@
 # ExplorerOS background iPhone service
 
 The integrated firmware preinstalls Explorer Link in `system/app/ExplorerLink.apk`.
-Pair once in its setup screen. A paired, enabled installation starts after boot
-and app updates, reconnects to its saved iPhone, and presents incoming cards
-without manually opening the app. The setup screen can disable background
-integration or revoke pairing.
+Pair once in its setup screen. The service implements startup after boot and app
+updates, reconnect to the saved iPhone, and incoming card presentation without
+manually opening the app. These paths require physical Glass verification.
+The setup screen can disable background integration or revoke pairing.
 
 Cards use a private Android activity because the shipped Unity ExplorerLauncher
 has no published card IPC. Dismissing an automatic card returns to the launcher.
@@ -35,15 +35,26 @@ ZIP payload by SHA-256. It updates only the system-tar checksum in `nandroid.md5
 preserving the other checksum-file bytes. MD5 is required by CWM; the separate
 build report uses SHA-256. Existing outputs are never overwritten.
 
-The kernel, boot image, recovery image, bootloader, launcher and original data
-backup are not modified. This is a derived CWM/Nandroid backup, not a rebuilt
-Android platform or a fastboot `system.img`. No pairing key is embedded. The
-original archive remains available beside the derived copy.
+Only the archive's system tar and its checksum line change. Original system
+members and the other ZIP payloads remain byte-identical to the input archive.
+This is a derived CWM/Nandroid backup, not a rebuilt Android platform or a fastboot
+`system.img`. No pairing key is embedded. The original archive remains available
+beside the derived copy.
+
+These are comparisons with the input archive, not promises about the installed
+device. A CWM restore can still rewrite boot, system, data and cache, including
+replacement of personal data. Installing a recovery is a separate firmware write.
+Neither operation is made safe by retaining the archive's original images.
 
 The accompanying `.build.json` records the input/output/APK hashes and preservation
 checks. `hardwareValidated` remains false. Tests do not prove partition space,
 CWM restore behavior, PackageManager scanning, boot delivery, Bluetooth bonding,
 radio reliability, display wake behavior, or recovery safety on real Glass.
+
+The report explicitly records that preservation applies only to archive bytes,
+that restoration may replace device data, and that device compatibility,
+partition capacity and recovery procedure have not been validated. The Mac app
+keeps raw partition execution disabled; a manifest or matching hash cannot enable it.
 
 See PORTABLE-MAC.md for transferring the app and firmware to another Mac, and
 HARDWARE.md before a physical installation. The builder never invokes ADB,

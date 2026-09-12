@@ -1,11 +1,11 @@
 # Validation status
 
-Recorded on 11 September 2026. Host tests and simulator captures do not establish
+Updated on 12 September 2026; iPhone and Qt captures below are from 11 September. Host tests and simulator captures do not establish
 that Glass hardware, Bluetooth, or firmware restoration works.
 
 ## Automated checks
 
-Run `scripts/test.sh`. The recorded local `artifacts/final-tests.log` contains:
+Run `scripts/test.sh`. The recorded local `artifacts/safety-tests.log` contains:
 
 - Python simulator and protocol: 17 tests passed.
 - Firmware builder: 3 tests passed, including preservation of an entire synthetic
@@ -16,7 +16,8 @@ Run `scripts/test.sh`. The recorded local `artifacts/final-tests.log` contains:
 - Swift ExplorerLinkCore: 22 tests passed, including bounded Shortcut preview URLs,
   Calendar/Reminders formatting, and protected-note payload validation.
 - Swift ExplorerFlashCore: 14 tests passed, including bounded process output,
-  timeout handling, image validation, bundle relocation, and changed-file rejection.
+  timeout handling, image validation, bundle relocation, changed-file rejection,
+  and a valid raw-flash plan producing zero runner calls.
 - Shortcut tests pass for generated workflows and UTF-16 token/output links,
   including a non-BMP character regression. All eight signed artifacts were
   decoded and reviewed; `fixtures/shortcut-artifacts.json` records binary and
@@ -24,7 +25,8 @@ Run `scripts/test.sh`. The recorded local `artifacts/final-tests.log` contains:
 
 Build 3 succeeded for iPhone Simulator and signed Release iPhone device. Both
 bundles contain all eight signed Shortcut files. The native Mac
-Release build contains both arm64 and x86_64 slices. The API 19 bridge APK and
+Release build 4 contains both arm64 and x86_64 slices. Raw partition execution
+is disabled; ordinary APK installation is retained. The API 19 bridge APK and
 Qt 6 desktop endpoint build successfully. Qt also passed its offscreen smoke test.
 
 An independent reviewer checked the protocol/security changes, phone-action
@@ -62,7 +64,7 @@ Phone integrations and bundled Shortcut presets are not claimed to be on it.
 `scripts/build-firmware.py` produced `ExplorerOS-26PB3-ExplorerLink.zip` with SHA-256:
 
 ```text
-1129408a7ac56d57e88c22f709959ef90a3fe54f9f02227fa1a6a0a0d112ca82
+833e0ebc783d5a50e199476b4f56f030f21bf5b4a5069e3ccdc1b20a18022170
 ```
 
 Independent verification confirmed unchanged outer entry names and identical
@@ -72,7 +74,7 @@ members and their original tar bytes are preserved. The only added member is
 ZIP CRC verification passes. The APK SHA-256 is:
 
 ```text
-6040989d024145b89c92b5ffc603922a8289465170200effeadc4d96cc07ca73
+bded3d86d0f48e292b410a4bd65eb3535b24dcce8ac22066f5c2c2217177612d
 ```
 
 ## Physical Glass gates
@@ -84,11 +86,27 @@ touchpad/camera events, Wi-Fi/BLE reconnection, ANCS/AMS actions, system-notific
 authorization, battery/radio behavior, and every recovery operation.
 
 The bundled firmware is a CWM backup requiring manual recovery restoration.
-The Mac raw-image planner cannot restore it. The stock HFP adapter is implemented
+All Mac raw-partition execution is disabled. Read-only planning does not validate
+image format, partition capacity, boot compatibility, or recovery. Manual CWM
+restoration can still write boot, system, data and cache, including replacement
+of personal data. Archive preservation does not certify a safe device restore. The stock HFP adapter is implemented
 and host-tested, but actual Siri invocation, playback and microphone use remain
 unverified. Its indicator distinguishes a request from an observed Bluetooth
 voice route; neither establishes Siri's precise listening phase. The original
 launcher's Camera binding remains unchanged. Generic dictated notification
-replies and global Siri transcripts are not implemented. See [HARDWARE.md](HARDWARE.md),
+replies, global Siri transcripts, "Hey Siri" wake-word detection, and photo/video
+sync are not implemented. The guarded HFP adapter can now be tested through an
+ordinary APK install on the audited API 19 system, without a ROM reflash. See [HARDWARE.md](HARDWARE.md),
 [FIRMWARE-INTEGRATION.md](FIRMWARE-INTEGRATION.md), and
 [FEASIBILITY-HFP.md](FEASIBILITY-HFP.md).
+
+## Installation safety follow-up
+
+The 12 September audit found that manifest checks did not establish a raw-image
+format or safe write lifecycle. Raw execution now fails unconditionally before
+any process invocation. The Mac firmware page only verifies the bundle or shows
+read-only plans. The full host suite and universal Mac build passed; independent
+review covered the execution block, APK-first HFP gate change, report scope and
+updated safety copy. New report fields explicitly mark device compatibility,
+partition capacity and recovery as unvalidated. No physical Glass was connected
+and no hardware writes occurred.

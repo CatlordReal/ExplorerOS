@@ -132,7 +132,14 @@ def build(base: Path, apk: Path, output: Path) -> Path:
         report = {"version": 1, "format": "cwm-backup", "integration": "preinstalled-background-service",
                   "baseSHA256": BASE_SHA256, "outputSHA256": digest(staged_zip), "apkSHA256": digest(apk),
                   "unchangedEntries": unchanged, "preservation": preservation,
-                  "hardwareValidated": False, "bootloaderKernelRecoveryChanged": False}
+                  "hardwareValidated": False, "preservationScope": "input-archive-bytes-only",
+                  "bootloaderKernelRecoveryChanged": False,
+                  "devicePartitionsMayBeWrittenByRestore": True,
+                  "restoreMayWritePartitions": ["boot", "system", "data", "cache"],
+                  "restorationMayReplaceDeviceData": True,
+                  "deviceCompatibilityValidated": False,
+                  "partitionCapacityValidated": False,
+                  "recoveryProcedureValidated": False}
         os.link(staged_zip, output)  # Exclusive publication: never replace an existing output.
         report_path = output.with_suffix(".build.json")
         with report_path.open("x") as stream:

@@ -40,15 +40,19 @@ final class ExplorerFlashCoreTests: XCTestCase {
         XCTAssertEqual(command.arguments, ["-s", "ABC", "install", "-r", apk.path])
     }
 
-    func testExecutorStopsAfterFirstFlashFailure() async throws {
+    func testExecutorNeverInvokesRunnerForOtherwiseValidRawFlashPlan() async throws {
         let image = directory.appendingPathComponent("boot.img"); let data = Data([8]); try data.write(to: image)
         let manifest = FlashManifest(product: "glass_1", images: [FlashImage(partition: "boot", file: "boot.img", sha256: SHA256.hash(data: data).hex, size: 1)])
         let device = Device(serial: "ABC", mode: .fastboot, state: "fastboot")
         let plan = try FlashPlanner.review(manifest: manifest, manifestURL: directory.appendingPathComponent("flash.json"), fastboot: URL(fileURLWithPath: "/tools/fastboot"), device: device)
-        let probe = ProcessCommand(executable: plan.commands[1].executable, arguments: ["devices"])
-        let runner = StubRunner(results: [result(plan.commands[0], output: "product: glass_1"), result(probe, output: "ABC\tfastboot\n"), result(plan.commands[1], code: 1)])
-        do { _ = try await FlashExecutor().execute(plan: plan, manifest: manifest, manifestURL: directory.appendingPathComponent("flash.json"), fastboot: URL(fileURLWithPath: "/tools/fastboot"), runner: runner, acknowledgement: "ABC", currentDevices: [device]); XCTFail("expected failure") }
-        catch { XCTAssertEqual(runner.commands.count, 3) }
+        let runner = StubRunner(results: [])
+        do {
+            _ = try await FlashExecutor().execute(plan: plan, manifest: manifest, manifestURL: directory.appendingPathComponent("flash.json"), fastboot: URL(fileURLWithPath: "/tools/fastboot"), runner: runner, acknowledgement: "ABC", currentDevices: [device])
+            XCTFail("expected raw execution block")
+        } catch {
+            XCTAssertEqual(error as? ExplorerFlashError, .invalidManifest("Raw partition execution is unavailable until a validated device, image, and recovery profile is available."))
+            XCTAssertTrue(runner.commands.isEmpty)
+        }
     }
 
     func testExecutorRejectsTamperedOrEmptyPlanBeforeRunner() async throws {
@@ -160,7 +164,6 @@ final class ExplorerFlashCoreTests: XCTestCase {
         XCTAssertThrowsError(try bundle.validatedURL(role: "firmware", manifestURL: manifestURL))
     }
 
-    private func result(_ command: ProcessCommand, code: Int32 = 0, output: String = "") -> ProcessResult { ProcessResult(command: command, exitCode: code, stdout: output, stderr: "") }
 }
 
 private final class StubRunner: ProcessRunning, @unchecked Sendable {

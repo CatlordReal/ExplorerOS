@@ -69,6 +69,13 @@ class FirmwarePreservationTests(unittest.TestCase):
             report = json.loads(report_path.read_text())
             self.assertEqual(report["outputSHA256"], firmware.digest(output))
             self.assertFalse(report["hardwareValidated"])
+            self.assertEqual(report["preservationScope"], "input-archive-bytes-only")
+            self.assertFalse(report["bootloaderKernelRecoveryChanged"])
+            self.assertTrue(report["devicePartitionsMayBeWrittenByRestore"])
+            self.assertEqual(report["restoreMayWritePartitions"], ["boot", "system", "data", "cache"])
+            self.assertTrue(report["restorationMayReplaceDeviceData"])
+            for gate in ["deviceCompatibilityValidated", "partitionCapacityValidated", "recoveryProcedureValidated"]:
+                self.assertFalse(report[gate])
             with zipfile.ZipFile(output) as archive:
                 for name, data in payloads.items():
                     if name != "system.ext4.tar.a": self.assertEqual(archive.read(name), data)

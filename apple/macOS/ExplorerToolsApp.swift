@@ -4,7 +4,6 @@ import UniformTypeIdentifiers
 import ExplorerFlashCore
 
 @MainActor final class FlashAppDelegate: NSObject, NSApplicationDelegate {
-    static var flashing = false
     let model = ToolsModel()
     let themes = ThemeSettings()
     private var window: NSWindow?
@@ -21,7 +20,7 @@ import ExplorerFlashCore
         NSApplication.shared.activate(ignoringOtherApps: true)
     }
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool { window?.makeKeyAndOrderFront(nil); return true }
-    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply { Self.flashing ? .terminateCancel : .terminateNow }
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply { .terminateNow }
 }
 
 @main struct ExplorerToolsApp: App {
@@ -47,14 +46,9 @@ import ExplorerFlashCore
     @Published private(set) var apk: URL?
     @Published private(set) var plan: FlashPlan?
     @Published private(set) var installPlan: ProcessCommand?
-    @Published var acknowledgement = ""
-    @Published var recoveryVerified = false
-    @Published var batteryVerified = false
-    @Published var firmwareEnabled = false
     @Published var page = "apps"
     private let runner = ProcessRunner()
     var selectedDevice: Device? { devices.first { "\($0.mode.rawValue):\($0.serial)" == selected } }
-    var canFlash: Bool { !busy && firmwareEnabled && recoveryVerified && batteryVerified && plan != nil && acknowledgement == plan?.device.serial }
 
     init() {
         guard let root = portableRoot, FileManager.default.fileExists(atPath: root.appendingPathComponent("bundle.json").path) else { return }
@@ -81,7 +75,7 @@ import ExplorerFlashCore
         do {
             try await Task.detached { for file in portable.bundle.files { _ = try portable.validated(role: file.role) } }.value
             bundleStatus = "Bundle hashes verified"
-            log = portable.bundle.isCWMBackup ? "CWM backup verified. Restore manually in recovery; raw-image flashing is not supported for this ZIP." : "Bundle verified. Use only the workflow documented in the install guide."
+            log = portable.bundle.isCWMBackup ? "Archive checksum verified. Recovery compatibility is untested. Raw partition writing is disabled." : "Bundle checksum verified. Review the install guide before device changes."
         } catch { bundleStatus = "Bundle verification failed"; log = error.localizedDescription }
     }
     func openFirmwareFolder() {
@@ -99,7 +93,7 @@ import ExplorerFlashCore
         guard let portable else { throw ExplorerFlashError.invalidManifest("Bundle unavailable. Choose your own files outside the app bundle.") }
         return try await Task.detached { try portable.checkedSelection(url, role: role) }.value
     }
-    func invalidate() { plan = nil; installPlan = nil; acknowledgement = ""; recoveryVerified = false; batteryVerified = false }
+    func invalidate() { plan = nil; installPlan = nil }
     private func binary(_ path: String, role: String) async throws -> URL {
         guard path.hasPrefix("/"), FileManager.default.isExecutableFile(atPath: path) else { throw ExplorerFlashError.invalidDevice("Choose an existing absolute executable path for adb/fastboot.") }
         return try await checkedBundleFile(URL(fileURLWithPath: path), role: role)
@@ -155,7 +149,7 @@ import ExplorerFlashCore
                 let fastboot = try await binary(fastbootPath, role: "fastboot")
                 let prepared = try await Task.detached { try FlashPlanner.review(manifest: manifest, manifestURL: manifestURL, fastboot: fastboot, device: device) }.value
                 plan = prepared
-                log = "Hashes and sizes verified. This proves file integrity, not firmware compatibility or recovery. No hardware command was sent."
+                log = "Hashes and sizes verified. This proves file integrity, not firmware compatibility or recovery. No hardware command was sent; raw partition writing is unavailable."
             }
         } catch { log = error.localizedDescription }
     }
@@ -175,19 +169,6 @@ import ExplorerFlashCore
             guard result.exitCode == 0 else { throw ExplorerFlashError.processFailed(result) }
             log += "\nAPK installation completed for \(selected.serial)."
         } catch { log += "\n" + error.localizedDescription }
-    }
-    func flash() async {
-        guard canFlash, let plan, let manifest, let manifestURL else { return }
-        busy = true; FlashAppDelegate.flashing = true
-        defer { busy = false; FlashAppDelegate.flashing = false; invalidate(); firmwareEnabled = false }
-        do {
-            let fastboot = try await binary(fastbootPath, role: "fastboot")
-            let fresh = try await runner.run(.init(executable: fastboot, arguments: ["devices"], timeout: 15))
-            guard fresh.exitCode == 0 else { throw ExplorerFlashError.processFailed(fresh) }
-            log = "Flashing verified plan. Keep USB connected. Closing the app is disabled until this finishes."
-            let results = try await FlashExecutor().execute(plan: plan, manifest: manifest, manifestURL: manifestURL, fastboot: fastboot, runner: runner, acknowledgement: acknowledgement, currentDevices: DeviceParser.fastbootDevices(fresh.stdout))
-            log = results.map { $0.stdout + "\n" + $0.stderr }.joined(separator: "\n") + "\nPlan completed. No reboot was issued. Verify boot and recovery on the device."
-        } catch { log += "\nStopped: " + error.localizedDescription }
     }
 }
 
@@ -219,11 +200,11 @@ struct ToolsView: View {
                         HStack {
                             VStack(alignment: .leading, spacing: 6) {
                                 Text(model.page == "apps" ? "Install APK" : "Firmware").font(.system(.largeTitle, design: .rounded, weight: .semibold))
-                                Text(model.page == "apps" ? "Select an APK and device." : "Manual recovery or advanced raw images").foregroundStyle(palette.muted)
+                                Text(model.page == "apps" ? "Select an APK and device." : "Manual recovery and read-only image review").foregroundStyle(palette.muted)
                             }; Spacer(); if model.busy { ProgressView() }
                         }
                         portablePanel
-                        if model.page == "firmware" { Toggle("Advanced raw-image workflow", isOn: $model.showAdvancedFirmware) }
+                        if model.page == "firmware" { Toggle("Advanced image review (read-only)", isOn: $model.showAdvancedFirmware) }
                         if model.page == "apps" || model.showAdvancedFirmware {
                         GroupBox("1 · Select tools and device") {
                             VStack(alignment: .leading, spacing: 10) {
@@ -246,7 +227,7 @@ struct ToolsView: View {
                                     Button(model.page == "apps" ? "Choose APK…" : "Choose manifest…") { model.choose(kind: model.page == "apps" ? "apk" : "manifest") }
                                 }
                                 if model.page == "firmware" {
-                                    Text("Raw partition images only. Supply a verified product-specific manifest and recovery procedure. CWM backup ZIPs are not accepted.").font(.callout)
+                                    Text("Checks paths, hashes and sizes only. Image compatibility is unverified; writing is disabled.").font(.callout)
                                     if let manifest = model.manifest {
                                         Text("Expected product: \(manifest.product)").font(.headline)
                                         ForEach(manifest.images, id: \.partition) { image in
@@ -263,15 +244,10 @@ struct ToolsView: View {
                             }
                         }
                         if let plan = model.plan {
-                            GroupBox("3 · Review firmware write") {
+                            GroupBox("3 · Firmware plan (read-only)") {
                                 VStack(alignment: .leading, spacing: 12) {
                                     ForEach(Array(plan.commands.enumerated()), id: \.offset) { commandView($0.element) }
-                                    Toggle("Enable firmware writing for this reviewed plan", isOn: $model.firmwareEnabled)
-                                    Toggle("I verified the image source, correct Glass model, and working recovery procedure", isOn: $model.recoveryVerified)
-                                    Toggle("Battery is charged and USB connection is stable", isOn: $model.batteryVerified)
-                                    TextField("Type device serial: \(plan.device.serial)", text: $model.acknowledgement)
-                                    Button("Flash reviewed images", role: .destructive) { Task { await model.flash() } }.disabled(!model.canFlash)
-                                    Text("Flashing can brick Glass if the images or hardware assumptions are wrong. These checks cannot certify compatibility.").font(.caption).foregroundStyle(palette.muted)
+                                    Text("Raw partition writing is disabled. Device compatibility and recovery remain untested.").font(.caption).foregroundStyle(palette.muted)
                                 }.padding(8)
                             }
                         }
@@ -297,7 +273,7 @@ struct ToolsView: View {
                                     if model.page == "firmware" {
                                         if let firmware = resources.bundle.files.first(where: { $0.role == "firmware" }) {
                                             Text("\(URL(fileURLWithPath: firmware.path).lastPathComponent) · \(ByteCountFormatter.string(fromByteCount: Int64(clamping: firmware.size), countStyle: .file))")
-                                            Text(resources.bundle.isCWMBackup ? "CWM backup ZIP. Restore manually in recovery. Not accepted by the raw-image flasher." : "Use the install guide for this firmware format.")
+                                            Text(resources.bundle.isCWMBackup ? "Experimental CWM backup. Manual restoration can overwrite device data. Raw partition writing is disabled." : "Review the install guide before device changes.")
                                         }
                                         HStack { Button("Verify bundle") { Task { await model.verifyBundle() } }; Button("Open firmware folder") { model.openFirmwareFolder() }; Button("Open install guide") { model.openInstallGuide() } }
                                     } else {
