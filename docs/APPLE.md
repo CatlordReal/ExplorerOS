@@ -2,7 +2,7 @@
 
 ## Components
 
-- `apple/iOS`: SwiftUI iOS 17+ companion. Wi-Fi, iPhone BLE peripheral, Keychain pairing, App Intents, MapKit route steps, and optional on-device app dictation.
+- `apple/iOS`: SwiftUI iOS 17+ companion. Wi-Fi, iPhone BLE peripheral, Keychain pairing, App Intents, MapKit route steps, optional on-device app dictation, and opt-in Glass media staging.
 - `apple/macOS`: macOS 14+ utility for explicit ADB APK installation and reviewable fastboot image plans.
 - `apple/Sources/ExplorerLinkCore`: authenticated wire protocol, local endpoint policy, route/input state, and solar theme scheduling.
 - `apple/Sources/ExplorerFlashCore`: path/hash validation, device selection, argument-only command planning, bounded APK subprocess execution, and disabled raw-partition execution.
@@ -44,10 +44,11 @@ The connection becomes connected only after decrypting a valid peer frame. Error
 - MapKit calculates route steps from a fresh, user-authorized location and destination. Glass swipes advance/revisit steps. This is manual step sharing, not live Apple Maps navigation mirroring, background tracking, or automatic rerouting. The Apple Maps button opens a separate Maps route.
 - The microphone button transcribes this app's input using on-device Speech recognition when available. This is labeled app dictation, not a Siri transcript. It stops when the app leaves the foreground, disconnects, or reaches its time limit.
 - Glass consumes ANCS/AMS directly for notifications, available notification actions, metadata, and supported media commands. The companion reports discovery only when the peer advertises it.
+- With **Camera sync** enabled on Glass and **Receive media from Glass** enabled in its Gallery, the foreground iPhone app can receive authenticated JPEG, PNG, MP4, or 3GPP captures over Wi-Fi. It stages them in its protected private vault. **Save to Photos** is a separate explicit add-only Photos action.
 
 ## Limits
 
-Glass photos and videos do not automatically transfer to iPhone. There is no camera-file transfer or Photos-library import implementation. AMS media support is for playback controls and track metadata. "Hey Siri" wake-word detection is not implemented.
+Media transfer needs both explicit opt-ins, authenticated TCP, observed Wi-Fi, and an active iPhone app. It has no background delivery or resume. It retains the original Glass capture, limits one transfer at a time, and deduplicates verified captures. Staging and host tests do not prove camera discovery, Android media-library access, Wi-Fi delivery, or Photos export on physical hardware. AMS media support is for playback controls and track metadata. "Hey Siri" wake-word detection is not implemented.
 
 Wi-Fi can be suspended by iOS. Initial BLE advertising is foreground-dependent for Android discovery; background iOS advertising has different UUID rules. Automatic process restoration is not implemented; reopen/reconnect after termination. ANCS/AMS service availability, permissions, and actual XE24 Bluetooth support need physical verification.
 

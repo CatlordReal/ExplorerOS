@@ -46,6 +46,13 @@ public struct LinkMessage: Codable, Equatable, Sendable {
         case "phone.action":
             try require(["action"])
             guard PhoneIntegrationAction(rawValue: payload["action"] ?? "") != nil else { throw LinkFailure.invalidMessage }
+        case "media.begin": try MediaTransfer.validateBegin(payload)
+        case "media.accept": try MediaTransfer.validateAccept(payload)
+        case "media.chunk": try MediaTransfer.validateChunk(payload)
+        case "media.ack": try MediaTransfer.validateAck(payload)
+        case "media.finish": try MediaTransfer.validateFinish(payload)
+        case "media.complete": try MediaTransfer.validateComplete(payload)
+        case "media.cancel": try MediaTransfer.validateCancel(payload)
         case "ping", "pong": guard keys.isSubset(of: ["id"]) else { throw LinkFailure.invalidMessage }
         case "error": try require(["code", "message"])
         default: break // Unknown extensions receive an authenticated error from the endpoint.

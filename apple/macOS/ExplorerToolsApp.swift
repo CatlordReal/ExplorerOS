@@ -8,7 +8,7 @@ import ExplorerFlashCore
     let themes = ThemeSettings()
     private var window: NSWindow?
     func applicationDidFinishLaunching(_ notification: Notification) {
-        let content = ThemedRoot(settings: themes) { ToolsView(model: self.model, themes: self.themes) }
+        let content = ThemedRoot(settings: themes) { ToolsView(model: self.model, themes: self.themes, recovery: self.model.recoveryWizard) }
         let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 1020, height: 760), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
         window.title = "Explorer Tools"
         window.minSize = NSSize(width: 780, height: 620)
@@ -31,6 +31,7 @@ import ExplorerFlashCore
 }
 
 @MainActor final class ToolsModel: ObservableObject {
+    let recoveryWizard = RecoveryWizardModel()
     @Published var adbPath = ""
     @Published var fastbootPath = ""
     @Published private(set) var devices: [Device] = []
@@ -94,6 +95,23 @@ import ExplorerFlashCore
         return try await Task.detached { try portable.checkedSelection(url, role: role) }.value
     }
     func invalidate() { plan = nil; installPlan = nil }
+    func inspectRecoveryDevice() async {
+        guard !busy, !recoveryWizard.busy, let device = selectedDevice, device.mode == .adb else { return }
+        busy = true; defer { busy = false }
+        do { recoveryWizard.inspect(adb: try await binary(adbPath, role: "adb"), serial: device.serial) }
+        catch { recoveryWizard.report(error) }
+    }
+    func prepareRecoveryFirmware() async {
+        guard !busy, !recoveryWizard.busy else { return }
+        guard let portable, let metadata = portable.bundle.files.first(where: { $0.role == "firmware" }), portable.bundle.isCWMBackup else {
+            recoveryWizard.report(ExplorerFlashError.invalidManifest("Bundled CWM firmware is unavailable. Open the complete portable app.")); return
+        }
+        busy = true; defer { busy = false }
+        do {
+            let firmware = try await Task.detached { try portable.validated(role: "firmware") }.value
+            recoveryWizard.prepare(firmware: firmware, sha256: metadata.sha256)
+        } catch { recoveryWizard.report(error) }
+    }
     private func binary(_ path: String, role: String) async throws -> URL {
         guard path.hasPrefix("/"), FileManager.default.isExecutableFile(atPath: path) else { throw ExplorerFlashError.invalidDevice("Choose an existing absolute executable path for adb/fastboot.") }
         return try await checkedBundleFile(URL(fileURLWithPath: path), role: role)
@@ -175,6 +193,7 @@ import ExplorerFlashCore
 struct ToolsView: View {
     @ObservedObject var model: ToolsModel
     @ObservedObject var themes: ThemeSettings
+    @ObservedObject var recovery: RecoveryWizardModel
     @Environment(\.linkPalette) private var palette
     @State private var confirmInstall = false
     var body: some View {
@@ -190,7 +209,7 @@ struct ToolsView: View {
                 Spacer()
                 Label("Preview first", systemImage: "checkmark.shield").font(.caption).foregroundStyle(palette.muted)
                 Text("Explorer Edition · USB").font(.caption2).foregroundStyle(palette.muted)
-            }.padding(26).frame(width: 220, alignment: .leading).background(palette.panel)
+            }.padding(26).frame(width: 220, alignment: .leading).background(palette.panel).disabled(model.busy || recovery.busy)
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     if model.page == "appearance" {
@@ -200,12 +219,11 @@ struct ToolsView: View {
                         HStack {
                             VStack(alignment: .leading, spacing: 6) {
                                 Text(model.page == "apps" ? "Install APK" : "Firmware").font(.system(.largeTitle, design: .rounded, weight: .semibold))
-                                Text(model.page == "apps" ? "Select an APK and device." : "Manual recovery and read-only image review").foregroundStyle(palette.muted)
+                                Text(model.page == "apps" ? "Select an APK and device." : "Check, back up, and prepare Glass.").foregroundStyle(palette.muted)
                             }; Spacer(); if model.busy { ProgressView() }
                         }
                         portablePanel
                         if model.page == "firmware" { Toggle("Advanced image review (read-only)", isOn: $model.showAdvancedFirmware) }
-                        if model.page == "apps" || model.showAdvancedFirmware {
                         GroupBox("1 · Select tools and device") {
                             VStack(alignment: .leading, spacing: 10) {
                                 HStack { Text("ADB").frame(width: 70, alignment: .leading); TextField("Absolute path", text: $model.adbPath); Button("Choose…") { model.choose(kind: "adb") } }
@@ -219,6 +237,12 @@ struct ToolsView: View {
                                 }
                             }.padding(8)
                         }
+                        if model.page == "firmware", !model.showAdvancedFirmware {
+                            RecoveryWizardView(wizard: recovery, canInspect: model.selectedDevice?.mode == .adb,
+                                               inspect: { Task { await model.inspectRecoveryDevice() } },
+                                               prepare: { Task { await model.prepareRecoveryFirmware() } })
+                        }
+                        if model.page == "apps" || model.showAdvancedFirmware {
                         GroupBox(model.page == "apps" ? "2 · Choose an app" : "2 · Choose verified firmware") {
                             VStack(alignment: .leading, spacing: 10) {
                                 HStack {
@@ -255,10 +279,13 @@ struct ToolsView: View {
                         GroupBox("Activity") { Text(model.log).font(.system(.caption, design: .monospaced)).textSelection(.enabled).frame(maxWidth: .infinity, minHeight: 90, alignment: .topLeading).padding(8) }
                     }
                 }.padding(28).frame(maxWidth: 1050)
-            }.background(palette.bg).disabled(model.busy)
+            }.background(palette.bg).disabled(model.busy || recovery.busy)
+                .overlay(alignment: .bottomTrailing) {
+                    if recovery.busy { Button("Stop current step") { recovery.cancel() }.padding(16).buttonStyle(.bordered) }
+                }
         }.foregroundStyle(palette.fg)
-            .onChange(of: model.selected) { _, _ in model.invalidate() }
-            .onChange(of: model.adbPath) { _, _ in model.invalidate() }
+            .onChange(of: model.selected) { _, _ in model.invalidate(); recovery.reset() }
+            .onChange(of: model.adbPath) { _, _ in model.invalidate(); recovery.reset() }
             .onChange(of: model.fastbootPath) { _, _ in model.invalidate() }
             .onChange(of: model.page) { _, _ in model.invalidate() }
             .onChange(of: model.showAdvancedFirmware) { _, _ in model.invalidate() }

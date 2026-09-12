@@ -19,6 +19,8 @@ import com.exploreros.glass.integration.IntegrationPolicy;
 import com.exploreros.glass.core.ProtocolException;
 import com.exploreros.glass.core.PhoneActions;
 import com.exploreros.glass.core.ProtocolMessage;
+import com.exploreros.glass.core.MediaTransfer;
+import com.exploreros.glass.media.MediaUploader;
 
 /** Paired, opt-out foreground integration. Never starts device discovery at boot. */
 public final class BridgeService extends Service {
@@ -26,12 +28,12 @@ public final class BridgeService extends Service {
     static final String ACTION_VOICE_CANCEL = "com.exploreros.glass.VOICE_CANCEL";
     static final String ACTION_PHONE = "com.exploreros.glass.PHONE", EXTRA_PHONE_ACTION = "phone_action";
     static final String ACTION_MEDIA = "com.exploreros.glass.MEDIA", ACTION_NOTIFICATION = "com.exploreros.glass.NOTIFICATION", EXTRA_UID = "uid", EXTRA_COMMAND = "command";
-    static final String ACTION_SCAN = "com.exploreros.glass.SCAN", ACTION_CONNECT = "com.exploreros.glass.CONNECT", ACTION_INPUT = "com.exploreros.glass.INPUT", ACTION_REVOKE = "com.exploreros.glass.REVOKE", ACTION_REKEY = "com.exploreros.glass.REKEY", EXTRA_ADDRESS = "address", EXTRA_GESTURE = "gesture", EXTRA_KEY = "key";
+    static final String ACTION_SCAN = "com.exploreros.glass.SCAN", ACTION_CONNECT = "com.exploreros.glass.CONNECT", ACTION_INPUT = "com.exploreros.glass.INPUT", ACTION_REVOKE = "com.exploreros.glass.REVOKE", ACTION_REKEY = "com.exploreros.glass.REKEY", ACTION_MEDIA_SYNC = "com.exploreros.glass.MEDIA_SYNC", EXTRA_ADDRESS = "address", EXTRA_GESTURE = "gesture", EXTRA_KEY = "key", EXTRA_ENABLED = "enabled";
     static final IntegrationPolicy presentation = new IntegrationPolicy();
     private final IntegrationPolicy.Reconnect reconnect = new IntegrationPolicy.Reconnect();
     private final Handler main = new Handler();
     private StockVoiceAdapter voice;
-    private TcpBridge tcp; private ExplorerBleClient ble; private int generation; private boolean closing;
+    private TcpBridge tcp; private ExplorerBleClient ble; private MediaUploader uploader; private int generation; private boolean closing;
     private final Runnable retry = new Runnable() { public void run() { if (closing || ble == null || !backgroundAllowed()) return; if (!ble.reconnectSaved(PairingStore.bleAddress(BridgeService.this))) scheduleReconnect(); } };
     static void start(Context context, String action) { Intent intent = new Intent(context, BridgeService.class).setAction(action); if (Build.VERSION.SDK_INT >= 26) context.startForegroundService(intent); else context.startService(intent); }
     private boolean backgroundAllowed() { return IntegrationPolicy.backgroundAllowed(PairingStore.has(this), PairingStore.backgroundEnabled(this)); }
@@ -46,6 +48,16 @@ public final class BridgeService extends Service {
         }
         if (ACTION_VOICE_CANCEL.equals(action)) { if (voice != null) voice.cancel(); return restartMode(); }
         if (tcp == null) startBridge();
+        if (ACTION_MEDIA_SYNC.equals(action)) {
+            boolean enabled = intent != null && intent.getBooleanExtra(EXTRA_ENABLED, false);
+            // Disable uploader first: it can send media.cancel while TCP still advertises sender capability.
+            if (uploader != null) uploader.enabled(enabled);
+            PairingStore.cameraSyncEnabled(this, enabled);
+            if (tcp != null) tcp.setMediaSyncEnabled(enabled);
+            if (uploader != null) uploader.peerReady(tcp != null && tcp.mediaReceiveAvailable());
+            BridgeEvents.status(enabled ? "Camera sync enabled" : "Camera sync disabled");
+            return restartMode();
+        }
         if (ble != null && intent != null) {
             if (ACTION_SCAN.equals(action)) { main.removeCallbacks(retry); reconnect.reset(); ble.startInitialScan(); }
             else if (ACTION_CONNECT.equals(action)) { main.removeCallbacks(retry); reconnect.reset(); String address = intent.getStringExtra(EXTRA_ADDRESS); PairingStore.saveBleAddress(this, address); ble.connect(address); }
@@ -64,10 +76,17 @@ public final class BridgeService extends Service {
             final byte[] key = PairingStore.get(this); startForeground(41, notification());
             voice = new StockVoiceAdapter(this, main, new StockVoiceAdapter.Events() { public void voice(String state) { if (!closing && generation == currentGeneration) BridgeEvents.voice(state); } });
             tcp = new TcpBridge(key, new TcpBridge.Callbacks() {
-                @Override public void closed() { dispatch(currentGeneration, new Runnable() { public void run() { if (BridgeEvents.companionCleared("tcp")) presentation.navigationStopped(); updatePhoneAvailability(); } }); }
+                @Override public void closed() { dispatch(currentGeneration, new Runnable() { public void run() { if (uploader != null) uploader.disconnected(); if (BridgeEvents.companionCleared("tcp")) presentation.navigationStopped(); updatePhoneAvailability(); } }); }
                 @Override public void status(final String value) { dispatch(currentGeneration, new Runnable() { public void run() { BridgeEvents.status(value); } }); }
                 @Override public void received(final ProtocolMessage message) { dispatch(currentGeneration, new Runnable() { public void run() { receive(message, "tcp"); } }); }
-            }); tcp.start();
+            }); tcp.setMediaSyncEnabled(PairingStore.cameraSyncEnabled(this)); tcp.start();
+            uploader = new MediaUploader(this, new MediaUploader.Callbacks() {
+                @Override public boolean transportReady() { return tcp != null && tcp.mediaReceiveAvailable(); }
+                @Override public boolean send(ProtocolMessage message) { return tcp != null && tcp.sendMedia(message); }
+                @Override public boolean completed(String sha256) { return PairingStore.mediaCompleted(BridgeService.this, sha256); }
+                @Override public void recordCompleted(String sha256) throws ProtocolException { PairingStore.recordMediaCompleted(BridgeService.this, sha256); }
+                @Override public void status(String value) { if (!closing) BridgeEvents.status(value); }
+            }); uploader.enabled(PairingStore.cameraSyncEnabled(this));
             ble = new ExplorerBleClient(this, key, new ExplorerBleClient.Callbacks() {
                 private boolean active() { return !closing && generation == currentGeneration; }
                 @Override public void status(String value) { if (active()) BridgeEvents.status(value); }
@@ -88,7 +107,12 @@ public final class BridgeService extends Service {
     }
     private void dispatch(final int expected, final Runnable action) { main.post(new Runnable() { public void run() { if (!closing && generation == expected && PairingStore.has(BridgeService.this)) action.run(); } }); }
     private void scheduleReconnect() { main.removeCallbacks(retry); long delay = reconnect.next(PairingStore.has(this), PairingStore.backgroundEnabled(this), PairingStore.bleAddress(this) != null); if (delay >= 0) main.postDelayed(retry, delay); else if (PairingStore.bleAddress(this) != null) BridgeEvents.status("BLE paused · reconnect in Setup"); }
-    private void receive(ProtocolMessage message, String transport) { BridgeEvents.message(message, transport); if ("capabilities".equals(message.type)) updatePhoneAvailability(); if ("navigation.stop".equals(message.type)) presentation.navigationStopped(); else present(message, null); }
+    private void receive(ProtocolMessage message, String transport) {
+        if (MediaTransfer.knownType(message.type)) { if ("tcp".equals(transport) && uploader != null) uploader.inbound(message); return; }
+        BridgeEvents.message(message, transport);
+        if ("capabilities".equals(message.type)) { updatePhoneAvailability(); if ("tcp".equals(transport) && uploader != null) uploader.peerReady(tcp != null && tcp.mediaReceiveAvailable()); }
+        if ("navigation.stop".equals(message.type)) presentation.navigationStopped(); else present(message, null);
+    }
     private void present(ProtocolMessage message, AncsNotifications.Notification note) {
         String type = note == null ? message.type : "ancs";
         if (!presentation.present(PairingStore.has(this), PairingStore.backgroundEnabled(this), BridgeEvents.foreground(), BridgeEvents.setupActive(), true, type, note != null && note.newlyAdded, note == null ? 0 : note.flags, SystemClock.elapsedRealtime())) return;
@@ -108,7 +132,7 @@ public final class BridgeService extends Service {
     }
     void input(String gesture) { if (gesture == null) return; if ("camera".equals(gesture) || "cameraLongPress".equals(gesture)) { if (voice != null && BridgeEvents.foreground()) voice.toggle(); else BridgeEvents.voice("Siri unavailable"); return; } if (tcp != null) tcp.sendInput(gesture); if (ble != null) ble.sendInput(gesture); }
     @Override public void onDestroy() { closeBridges(); main.removeCallbacksAndMessages(null); super.onDestroy(); }
-    private void closeBridges() { closing = true; generation++; if (voice != null) voice.close(); voice = null; main.removeCallbacks(retry); reconnect.reset(); if (tcp != null) tcp.stop(); tcp = null; if (ble != null) ble.close(); ble = null; presentation.clear(); BridgeEvents.cleared(); stopForeground(true); }
+    private void closeBridges() { closing = true; generation++; if (voice != null) voice.close(); voice = null; main.removeCallbacks(retry); reconnect.reset(); if (uploader != null) uploader.close(); uploader = null; if (tcp != null) tcp.stop(); tcp = null; if (ble != null) ble.close(); ble = null; presentation.clear(); BridgeEvents.cleared(); stopForeground(true); }
     @Override public IBinder onBind(Intent intent) { return null; }
     private Notification notification() {
         Notification.Builder b; if (Build.VERSION.SDK_INT >= 26) { ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).createNotificationChannel(new NotificationChannel("explorer-link", "Explorer Link", NotificationManager.IMPORTANCE_LOW)); b = new Notification.Builder(this, "explorer-link"); } else b = new Notification.Builder(this);

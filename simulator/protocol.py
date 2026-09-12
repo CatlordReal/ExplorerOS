@@ -10,13 +10,14 @@ from dataclasses import dataclass
 from typing import Any
 
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+from .media import SCHEMAS as MEDIA_TYPES, MediaTransferError, validate_media
 
 VERSION = 1
 AAD = b"ExplorerLink/1"
 MAX_LINE_BYTES = 32_768
 MAX_SEQUENCE = (1 << 53) - 1
 KNOWN_TYPES = frozenset({
-    "capabilities", "card", "navigation", "navigation.stop", "input", "ping", "pong", "error", "phone.action"
+    "capabilities", "card", "navigation", "navigation.stop", "input", "ping", "pong", "error", "phone.action", *MEDIA_TYPES
 })
 ENDPOINTS = frozenset({"glass", "ios", "simulator", "qt"})
 GESTURES = frozenset({"tap", "doubleTap", "swipeLeft", "swipeRight", "swipeDown", "camera", "cameraLongPress"})
@@ -91,6 +92,12 @@ def validate_message(value: Any) -> dict[str, Any]:
 
 def _validate_type_payload(message_type: str, payload: dict[str, str]) -> None:
     """Validate known message schemas; retain unknown types for an encrypted error reply."""
+    if message_type.startswith("media."):
+        try:
+            validate_media(message_type, payload)
+        except MediaTransferError as exc:
+            raise ProtocolError(str(exc)) from exc
+        return
     if message_type == "capabilities":
         if set(payload) != {"endpoint", "features"} or payload["endpoint"] not in ENDPOINTS:
             raise ProtocolError("invalid capabilities payload")

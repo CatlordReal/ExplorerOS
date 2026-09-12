@@ -45,6 +45,8 @@
 	<string>Use your current location to calculate route steps you choose to send to Glass.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Capture dictation you explicitly start and send it to Glass.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Save selected Glass photos and videos to your Photos library.</string>
 	<key>NSRemindersFullAccessUsageDescription</key>
 	<string>Read unfinished reminders only when you choose to send them to Glass.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>

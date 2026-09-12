@@ -15,6 +15,7 @@ import ExplorerLinkCore
                 #if DEBUG
                 if ProcessInfo.processInfo.arguments.contains("--integration-test"), let key = ProcessInfo.processInfo.environment["EXPLORERLINK_TEST_KEY"] {
                     companion.pair(key); companion.host = "127.0.0.1"; companion.mode = .wifi
+                    if ProcessInfo.processInfo.arguments.contains("--media-sync") { companion.mediaSync.receiveEnabled = true }
                     if ProcessInfo.processInfo.arguments.contains("--notes-fixture"), companion.quickNotes.notes.isEmpty {
                         companion.quickNotes.create(title: "Test note", body: "Synthetic note for the Glass integration test.")
                     }
@@ -57,7 +58,10 @@ struct CompanionTabs: View {
             if ProcessInfo.processInfo.arguments.contains("--phone-preview") { selection = "phone" }
             #endif
         }
-        .onChange(of: scenePhase) { _, phase in if phase != .active { dictation.stop() } }
+        .onChange(of: scenePhase) { _, phase in
+            if phase != .active { dictation.stop(); companion.mediaSync.leaveForeground() }
+            companion.refreshMediaCapability()
+        }
         .onOpenURL { url in
             do {
                 companion.draft = try IntegrationPolicy.previewText(from: url)
@@ -73,6 +77,7 @@ struct GlassHome: View {
     @ObservedObject var companion: CompanionModel
     @ObservedObject var dictation: DictationModel
     @State private var noteSaved = false
+    @State private var showMedia = false
     @Environment(\.linkPalette) private var palette
     var body: some View {
         ScrollView {
@@ -90,6 +95,7 @@ struct GlassHome: View {
                     if companion.connected { Text("\(companion.peer.capitalized) · \(companion.mode.rawValue) · Last input: \(companion.lastInput)").font(.caption).foregroundStyle(palette.muted) }
                 }
                 GlassCard(title: companion.cardTitle, bodyText: companion.cardBody, source: companion.cardSource)
+                Button { showMedia = true } label: { Label("Glass media", systemImage: "photo.on.rectangle") }
                 VStack(alignment: .leading, spacing: 12) {
                     Text("SEND TEXT").font(.caption2.weight(.semibold)).tracking(1.7).foregroundStyle(palette.muted)
                     TextField("A note for your Glass…", text: $companion.draft, axis: .vertical).lineLimit(2...5).padding(14).background(palette.panel, in: RoundedRectangle(cornerRadius: 16))
@@ -117,6 +123,14 @@ struct GlassHome: View {
                 }.padding(18).background(palette.panel, in: RoundedRectangle(cornerRadius: 20))
             }.padding(22).frame(maxWidth: 640)
         }.background(palette.bg).foregroundStyle(palette.fg).navigationTitle("Explorer Link").navigationBarTitleDisplayMode(.inline)
+        .navigationDestination(isPresented: $showMedia) {
+            MediaLibraryView(store: companion.mediaSync, connected: companion.connected, wifi: companion.mode == .wifi) { companion.refreshMediaCapability() }
+        }
+        .onAppear {
+            #if DEBUG
+            if ProcessInfo.processInfo.arguments.contains("--media-preview") { showMedia = true }
+            #endif
+        }
     }
 }
 

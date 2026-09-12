@@ -51,3 +51,28 @@ stdout emits one compact JSON object per event for a local controller such as th
 ```
 
 The suite checks fragmentation, coalescing, wrong-key authentication failure, replay detection, invalid payload/session rules, fresh reconnect challenges, and an actual localhost socket exchange.
+
+## Camera transfer fixtures
+
+Pass only explicit synthetic files; the simulator never scans a photo library:
+
+```sh
+.venv/bin/python -m simulator.server --key-file /path/to/test-only.key \
+  --media-fixture /path/to/synthetic-photo.png \
+  --media-fixture /path/to/synthetic-video.mp4
+```
+
+Up to 16 JPEG, PNG, MP4 or 3GP fixtures are supported. The authenticated iPhone
+must advertise `media.receive.tcp.v1` before an offer is sent. Each chunk waits
+for an acknowledgement; completion requires the expected hash and byte count.
+Disconnect, opt-out and timeout close only the simulator's file handle. Source
+files are never changed. Socket tests exercise encrypted transfer and capability
+withdrawal in addition to state-machine and malformed-payload tests.
+
+The Debug iPhone integration hook accepts `--media-sync --media-preview` with
+the existing `--integration-test` and test-only environment key. It receives
+real protocol data into the app vault and opens the gallery. The optional
+`--media-open-first` opens an already staged file in native Quick Look. These
+hooks are excluded from Release builds. Debug loopback is allowed explicitly;
+production media transfer requires an observed Wi-Fi path. Neither a synthetic
+fixture nor an iPhone Simulator capture proves the Glass camera or radio works.

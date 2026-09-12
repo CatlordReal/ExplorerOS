@@ -41,9 +41,21 @@ HFP implementation, whether installed normally or preinstalled in the firmware.
 **Siri requested** means a request was sent; **Bluetooth voice audio** means the
 SCO route flag was observed during that request. Neither proves Siri listening
 or audible output. See [stock HFP gates and limitations](FEASIBILITY-HFP.md).
-"Hey Siri" wake-word detection and automatic transfer of Glass photos or videos
-to iPhone are not implemented. AMS media support controls playback and metadata;
-it does not transfer camera files.
+"Hey Siri" wake-word detection is not implemented. AMS media support controls
+playback and metadata; it does not transfer camera files. Separate opt-in Camera
+sync can send selected camera-library captures only to an authenticated, capable,
+foreground Wi-Fi iPhone receiver; see [MEDIA-SYNC.md](MEDIA-SYNC.md).
+
+## Camera sync
+
+**Setup > Camera sync** is off by default. When enabled, Glass scans a bounded
+API 19 MediaStore page under `DCIM/Camera`, admits only regular JPEG, PNG, MP4,
+or 3GPP files with matching headers and limits, and never deletes or edits a
+source capture. It sends only after the iPhone advertises `media.receive.tcp.v1`
+over authenticated TCP. One 3,072-byte chunk is outstanding at a time; source
+metadata and streaming SHA-256 are checked before completion. A disable, path
+loss, error, or timeout cancels the active transfer. Physical camera catalog,
+storage permission, source stability, and Wi-Fi behavior remain hardware gates.
 
 ## Build and test
 

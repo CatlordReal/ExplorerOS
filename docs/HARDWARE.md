@@ -15,6 +15,7 @@ Test and record:
 - ANCS service discovery and system notification authorization; fragmented title/body attributes; multiple notifications; modification/removal; no action when its flag is absent; no stale content after disconnect.
 - AMS supported command notifications, track title/artist, play/pause/next/previous only when offered, command changes, and service disappearance/re-discovery.
 - Both direct system GATT services and the custom companion service on one iPhone connection, including Service Changed handling.
+- Camera sync opt-in on Glass and Receive media opt-in on iPhone; authenticated Wi-Fi-only capability exchange, JPEG/PNG/MP4/3GPP catalog admission, source stability, chunk/ack loss, timeout, cancel, deduplication, private vault quota, and explicit Save to Photos. Verify originals remain on Glass and that no media transfers while either opt-in, Wi-Fi, or foreground state is absent.
 - Battery draw, radio coexistence, sound/microphone routing and thermal behavior over sustained sessions.
 
 ## Headset Siri research gate

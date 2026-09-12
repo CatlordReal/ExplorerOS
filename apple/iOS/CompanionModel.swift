@@ -12,6 +12,7 @@ import ExplorerLinkCore
     @Published private(set) var paired = KeychainStore.read() != nil
     @Published private(set) var peer = "Glass"
     @Published private(set) var capabilities: Set<String> = []
+    @Published private(set) var wifiPathAvailable = false
     @Published var error: String?
     @Published var draft = ""
     @Published var cardTitle = "No card"
@@ -21,6 +22,7 @@ import ExplorerLinkCore
     @Published var route: RouteProgress?
     let quickNotes = QuickNotesStore()
     let phoneIntegrations = PhoneIntegrationsModel()
+    let mediaSync = MediaSyncStore()
     private var browsedNoteIndex: Int?
     private var transport: LinkTransport?
     private var session: SecureSession?
@@ -54,7 +56,10 @@ import ExplorerLinkCore
         link.onOpen = { [weak self] in self?.opened() }
         link.onBytes = { [weak self] bytes in self?.received(bytes) }
         link.onClose = { [weak self] reason in self?.fail(reason) }
-        if let wifi = link as? WiFiTransport { wifi.start(host: host.trimmingCharacters(in: .whitespacesAndNewlines)) }
+        if let wifi = link as? WiFiTransport {
+            wifi.onPathChange = { [weak self] available in self?.wifiPathChanged(available) }
+            wifi.start(host: host.trimmingCharacters(in: .whitespacesAndNewlines))
+        }
         if let ble = link as? BLETransport { ble.start() }
         timeout = Task { [weak self] in
             try? await Task.sleep(for: .seconds(self?.mode == .bluetooth ? 120 : 15))
@@ -78,7 +83,7 @@ import ExplorerLinkCore
                 }
                 if session.hasPeerHello && !capabilitiesSent {
                     capabilitiesSent = true
-                    try transport?.send(session.seal(.capabilities(endpoint: "ios", features: ["cards", "navigation", "appIntents", "speech", "phone.actions"])))
+                    try sendCapabilities()
                 }
             }
         } catch { fail(error.localizedDescription) }
@@ -112,6 +117,11 @@ import ExplorerLinkCore
             case .showCompanion: status = "Camera input received"
             case .none: break
             }
+        case "media.begin", "media.chunk", "media.finish", "media.cancel":
+            mediaSync.handle(message, connected: connected, wifi: mode == .wifi && wifiPathAvailable, peerSender: capabilities.contains("media.send.tcp.v1")) { [weak self] response in
+                guard let self else { throw LinkFailure.notReady }
+                try self.send(response)
+            }
         case "error": error = message.payload["message"] ?? "The peer reported an error."
         default: try send(.init(type: "error", payload: ["code": "unsupported_type", "message": "Unsupported message type."]))
         }
@@ -131,6 +141,22 @@ import ExplorerLinkCore
     func send(_ message: LinkMessage) throws {
         guard connected, let session, let transport else { throw LinkFailure.notReady }
         try transport.send(session.seal(message))
+    }
+    func refreshMediaCapability() {
+        guard connected else { return }
+        do { try sendCapabilities() } catch { self.error = error.localizedDescription }
+    }
+    private func wifiPathChanged(_ available: Bool) {
+        guard wifiPathAvailable != available else { return }
+        wifiPathAvailable = available
+        if !available { mediaSync.connectionUnavailable() }
+        refreshMediaCapability()
+    }
+    private func sendCapabilities() throws {
+        var features = ["cards", "navigation", "appIntents", "speech", "phone.actions"]
+        if mode == .wifi, wifiPathAvailable, mediaSync.receiverAvailable { features.append("media.receive.tcp.v1") }
+        guard let session, let transport else { throw LinkFailure.notReady }
+        try transport.send(session.seal(.capabilities(endpoint: "ios", features: features)))
     }
     func sendCard(title: String = "From iPhone", body: String, source: String = "companion") throws {
         try send(.init(type: "card", payload: ["title": title, "body": body, "source": source]))
@@ -167,8 +193,10 @@ import ExplorerLinkCore
     private func fail(_ reason: String) { disconnect(); error = reason; status = "Disconnected" }
     func disconnect() {
         phoneIntegrations.clearPending(); browsedNoteIndex = nil
+        mediaSync.disconnect()
         timeout?.cancel(); timeout = nil; heartbeat?.cancel(); heartbeat = nil; pendingPing = nil
+        if let wifi = transport as? WiFiTransport { wifi.onPathChange = nil }
         transport?.onClose = nil; transport?.stop(); transport = nil; session = nil; decoder = LineDecoder(); capabilitiesSent = false
-        connected = false; connecting = false; capabilities = []; status = "Disconnected"
+        connected = false; connecting = false; capabilities = []; wifiPathAvailable = false; status = "Disconnected"
     }
 }

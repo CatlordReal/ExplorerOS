@@ -15,13 +15,25 @@ import ExplorerLinkCore
     var onBytes: ((Data) -> Void)?
     var onOpen: (() -> Void)?
     var onClose: ((String) -> Void)?
+    var onPathChange: ((Bool) -> Void)?
     private var connection: NWConnection?
+    private var pathMonitor: NWPathMonitor?
     private var pendingBytes = 0
     private var generation = UUID()
     func start(host: String, port: UInt16 = 8765) {
         stop()
         let token = generation
-        let connection = NWConnection(host: .init(host), port: .init(rawValue: port)!, using: .tcp)
+        let parameters = NWParameters.tcp
+        #if DEBUG
+        let loopback = host == "127.0.0.1" || host == "localhost"
+        #else
+        let loopback = false
+        #endif
+        if !loopback { parameters.requiredInterfaceType = .wifi }
+        let monitor = NWPathMonitor(); pathMonitor = monitor
+        monitor.pathUpdateHandler = { [weak self] path in Task { @MainActor in guard let self, token == self.generation else { return }; self.onPathChange?(loopback || (path.status == .satisfied && path.usesInterfaceType(.wifi))) } }
+        monitor.start(queue: .main)
+        let connection = NWConnection(host: .init(host), port: .init(rawValue: port)!, using: parameters)
         self.connection = connection
         connection.stateUpdateHandler = { [weak self] state in
             Task { @MainActor in
@@ -61,7 +73,7 @@ import ExplorerLinkCore
         }
     }
     private func close(_ reason: String) { stop(); onClose?(reason) }
-    func stop() { generation = UUID(); connection?.cancel(); connection = nil; pendingBytes = 0 }
+    func stop() { generation = UUID(); pathMonitor?.cancel(); pathMonitor = nil; onPathChange?(false); connection?.cancel(); connection = nil; pendingBytes = 0 }
 }
 
 /// iPhone peripheral role is deliberate: XE24's public APIs only expose the central role.

@@ -32,8 +32,9 @@ public final class ProtocolMessage {
         else if ("phone.action".equals(type)) { require("action"); if (!PhoneActions.valid(payload.get("action"))) throw new ProtocolException("unknown phone action"); }
         else if ("ping".equals(type) || "pong".equals(type)) optional("id");
         else if ("error".equals(type)) require("code", "message");
+        else if (MediaTransfer.knownType(type)) MediaTransfer.validate(type, payload);
     }
-    public static boolean isKnownType(String value) { return "capabilities".equals(value) || "card".equals(value) || "navigation".equals(value) || "navigation.stop".equals(value) || "input".equals(value) || "phone.action".equals(value) || "ping".equals(value) || "pong".equals(value) || "error".equals(value); }
+    public static boolean isKnownType(String value) { return "capabilities".equals(value) || "card".equals(value) || "navigation".equals(value) || "navigation.stop".equals(value) || "input".equals(value) || "phone.action".equals(value) || "ping".equals(value) || "pong".equals(value) || "error".equals(value) || MediaTransfer.knownType(value); }
     private void require(String... keys) throws ProtocolException { if (payload.size() != keys.length) throw new ProtocolException("wrong payload fields"); for (String key : keys) if (!payload.containsKey(key)) throw new ProtocolException("missing payload field"); }
     private void exact() throws ProtocolException { if (!payload.isEmpty()) throw new ProtocolException("wrong payload fields"); }
     private void optional(String key) throws ProtocolException { if (payload.size() > 1 || (payload.size() == 1 && !payload.containsKey(key))) throw new ProtocolException("wrong payload fields"); }

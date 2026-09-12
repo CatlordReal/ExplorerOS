@@ -66,3 +66,54 @@ Use only one authenticated transport per request, preferring TCP if both exist.
 
 ANCS actions are separate: their positive/negative action IDs carry no text reply
 payload. A Reply label must not enable an invented dictation/send capability.
+
+## Optional camera capture transfer
+
+This extension uses the existing authenticated envelope and **TCP only**. Glass
+advertises `media.send.tcp.v1` only when Camera sync is enabled; iPhone advertises
+`media.receive.tcp.v1` only when receiving is enabled over Wi-Fi in the foreground.
+Both capabilities are required. BLE notification/media playback support is separate.
+No transfer accepts a peer-supplied filename or filesystem path.
+
+All fields below remain strings under the existing 4,096-byte value bound. `id`
+is 32 lowercase hexadecimal characters; `sha256` is 64 lowercase hexadecimal
+characters. Counts/offsets use canonical unsigned decimal strings. MIME types are
+`image/jpeg`, `image/png`, `video/mp4`, and `video/3gpp`.
+
+| Type | Exact payload fields | Direction |
+| --- | --- | --- |
+| `media.begin` | `id`, `sha256`, `bytes`, `chunks`, `chunk_bytes` = `3072`, `mime`, `captured_ms` | Glass to iPhone |
+| `media.accept` | `id` | iPhone to Glass |
+| `media.chunk` | `id`, `index`, `data` (strict Base64) | Glass to iPhone |
+| `media.ack` | `id`, `next` | iPhone to Glass |
+| `media.finish` | `id` | Glass to iPhone |
+| `media.complete` | `id`, `sha256`, `bytes`, `state` = `staged` or `deduplicated` | iPhone to Glass |
+| `media.cancel` | `id`, `code` | Either |
+
+Cancellation codes are `disabled`, `unsupported`, `quota`, `storage`, `state`,
+`integrity`, or `timeout`. Unknown keys, invalid directions and malformed values
+cannot change transfer state. An endpoint must not acknowledge a different transfer.
+
+Only one transfer and one unacknowledged chunk may exist per session. Raw chunks
+are exactly 3,072 bytes except the final remainder; Base64 is at most 4,096 bytes.
+The receiver accepts only the next zero-based index and acknowledges only after a
+successful file write. The sender sends `media.finish` after the final chunk ack.
+The receiver checks total bytes and streaming SHA-256, synchronizes/closes the file,
+and commits private library metadata before reporting `staged`. A previously
+verified capture may receive `deduplicated` directly after `media.begin`, with its
+matching hash and size; no `media.accept` or chunk is then needed.
+
+Limits: images 50 MiB, videos 250 MiB, 500 MiB per authenticated session, one active
+transfer, and a 30-second idle timeout. iPhone additionally reserves space within a
+1 GiB/1,000-capture private library and checks available storage before accepting.
+Zero-length files are rejected. The sender verifies stable source metadata and
+streamed content; a file still being recorded is deferred. Camera discovery uses
+bounded scans and never deletes or edits source captures.
+
+Disabling sync, leaving the foreground, disconnecting, or an integrity failure
+closes the transfer and removes only the receiver's unfinished private staging file.
+There is no partial resume in this version; a later connection starts afresh and
+completed hashes deduplicate. Glass records delivery only after a matching
+`media.complete`, scoped to the current pairing. Original Glass captures remain.
+Saving a received file into iPhone Photos is a separate explicit action, requesting
+add-only Photos permission on use; reception itself needs no Photos-library access.

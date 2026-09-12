@@ -148,7 +148,7 @@ def main() -> None:
         shutil.copy2(ROOT / "LICENSE", licenses / "ExplorerOS-GPL-3.0.txt")
         if (tool_root / "source.properties").is_file():
             shutil.copy2(tool_root / "source.properties", licenses / "platform-tools-source.properties")
-        for name in ["FIRMWARE-BUNDLE.md", "FIRMWARE-INTEGRATION.md", "UPSTREAM-INSTALLER.md", "FLASHING.md", "GLASS.md", "HARDWARE.md", "INTEGRATIONS.md", "FEASIBILITY-HFP.md"]:
+        for name in ["FIRMWARE-BUNDLE.md", "FIRMWARE-INTEGRATION.md", "UPSTREAM-INSTALLER.md", "FLASHING.md", "COMMUNITY-SAFETY.md", "MEDIA-SYNC.md", "GLASS.md", "HARDWARE.md", "INTEGRATIONS.md", "FEASIBILITY-HFP.md"]:
             shutil.copy2(ROOT / "docs" / name, portable / name)
         guide = ROOT / "docs/PORTABLE-MAC.md"
         shutil.copy2(guide, portable / "INSTALL.md")

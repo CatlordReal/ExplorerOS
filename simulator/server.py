@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Any, Callable
 
 from .protocol import KNOWN_TYPES, PHONE_ACTIONS, LineDecoder, ProtocolError, Session, validate_key_hex
+from .media import FixtureMediaSender, MediaTransferError
 
 CONTROL_GESTURES = frozenset({"tap", "doubleTap", "swipeLeft", "swipeRight", "swipeDown", "camera", "cameraLongPress"})
 
@@ -22,11 +23,13 @@ class SimulatorServer:
     """One-client local TCP server. Its events are a small JSON stdout API for Qt."""
 
     def __init__(self, key: bytes, host: str = "127.0.0.1", port: int = 8765, synthetic_ui: bool = False,
-                 event_sink: Callable[[dict[str, Any]], None] | None = None, handshake_timeout: float = 8.0) -> None:
+                 event_sink: Callable[[dict[str, Any]], None] | None = None, handshake_timeout: float = 8.0,
+                 media_fixtures: list[Path] | None = None) -> None:
         if handshake_timeout <= 0:
             raise ValueError("handshake timeout must be positive")
         self.key, self.host, self.port, self.synthetic_ui = key, host, port, synthetic_ui
         self.handshake_timeout = handshake_timeout
+        self._media = FixtureMediaSender(media_fixtures or [])
         self._event_sink = event_sink or (lambda event: print(json.dumps(event, separators=(",", ":")), flush=True))
         self._selector = selectors.DefaultSelector()
         self._listener: socket.socket | None = None
@@ -88,6 +91,8 @@ class SimulatorServer:
     def _run(self) -> None:
         while not self._stopped.is_set():
             self._drain_controls()
+            for kind, payload in self._media.tick():
+                self._send_message(kind, payload)
             if self._session is not None and not self._session.authenticated and self._handshake_deadline is not None and time.monotonic() >= self._handshake_deadline:
                 self._close_client("handshake_timeout")
             for key, mask in self._selector.select(timeout=0.1):
@@ -132,12 +137,13 @@ class SimulatorServer:
                     break
                 message = self._session.receive(frame)
                 if message is None:
-                    self._send_message("capabilities", {"endpoint": "simulator", "features": "cards,navigation,input"})
+                    features = "cards,navigation,input" + (",media.send.tcp.v1" if self._media.paths else "")
+                    self._send_message("capabilities", {"endpoint": "simulator", "features": features})
                 else:
                     self._receive_message(message)
         except BlockingIOError:
             pass
-        except (OSError, ProtocolError):
+        except (OSError, ProtocolError, MediaTransferError):
             self._close_client("protocol_closed")
 
     def _receive_message(self, message: dict[str, Any]) -> None:
@@ -164,6 +170,14 @@ class SimulatorServer:
         elif kind == "capabilities":
             self._peer_phone_actions = payload.get("endpoint") == "ios" and "phone.actions" in {feature.strip() for feature in payload.get("features", "").split(",")}
             self._emit("capabilities", peer=payload.get("endpoint", "unknown"), features=payload.get("features", ""))
+            enabled = payload.get("endpoint") == "ios" and "media.receive.tcp.v1" in payload.get("features", "").split(",")
+            for response, fields in self._media.set_available(enabled):
+                self._send_message(response, fields)
+        elif kind.startswith("media."):
+            for response, fields in self._media.receive(kind, payload):
+                self._send_message(response, fields)
+            if kind == "media.complete":
+                self._emit("media", completed=True, state=payload["state"], bytes=payload["bytes"])
 
     def _drain_controls(self) -> None:
         for _ in range(64):
@@ -261,6 +275,7 @@ class SimulatorServer:
         self._client = self._decoder = self._session = None
         self._handshake_deadline = None
         self._peer_phone_actions = False
+        self._media.reset()
         self._outgoing.clear()
         self._state["connected"] = False
         self._state["card"] = self._state["navigation"] = None
@@ -299,10 +314,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--key", help="64 hexadecimal pairing key; avoid shell history")
     parser.add_argument("--key-file", help="file containing exactly one 64 hexadecimal pairing key")
     parser.add_argument("--synthetic-ui", action="store_true", help="emit synthetic card/navigation content to stdout")
+    parser.add_argument("--media-fixture", action="append", type=Path, default=[], help="explicit synthetic JPEG/PNG/MP4/3GP test file to transfer; repeat up to 16 times")
     args = parser.parse_args(argv)
     try:
         key, generated = _load_key(args)
-        server = SimulatorServer(key, args.host, args.port, args.synthetic_ui)
+        server = SimulatorServer(key, args.host, args.port, args.synthetic_ui, media_fixtures=args.media_fixture)
         if generated:
             print(f"PAIRING_KEY={generated}", flush=True)
         server.start()

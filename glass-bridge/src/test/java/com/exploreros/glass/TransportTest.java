@@ -2,6 +2,7 @@ package com.exploreros.glass;
 
 import com.exploreros.glass.core.LinkSession;
 import com.exploreros.glass.core.ProtocolMessage;
+import com.exploreros.glass.core.MediaTransfer;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.InputStreamReader;
@@ -21,6 +22,7 @@ public final class TransportTest {
     public static void main(String[] args) throws Exception {
         final Events events = new Events();
         TcpBridge bridge = new TcpBridge(KEY, events, 0);
+        bridge.setMediaSyncEnabled(true);
         bridge.start();
         int port = awaitPort(bridge);
         Socket untrusted = null;
@@ -33,18 +35,23 @@ public final class TransportTest {
             BufferedReader attackerReader = reader(untrusted);
             require(attackerReader.readLine().contains("\"hello\""), "server hello");
             require(!bridge.sendPhoneAction("notes.create"), "unauthenticated phone action gate");
+            require(!bridge.sendMedia(new ProtocolMessage(1, "media.cancel", MediaTransfer.cancel("00112233445566778899aabbccddeeff", "disabled"))), "unauthenticated media gate");
             write(untrusted, "{\"v\":1,\"nonce\":\"AA==\",\"box\":\"AA==\"}");
             waitClosed(untrusted);
             equal(0, events.messages());
 
             first = new Socket("127.0.0.1", port);
-            Client ios = authenticate(first, true);
+            Client ios = authenticate(first, true, true);
             require(events.await("capabilities", 1500), "authenticated capabilities callback");
             require(awaitPhoneActions(bridge), "advertised phone actions");
+            require(awaitMediaReceive(bridge), "advertised media receive");
             require(bridge.sendPhoneAction("notes.create"), "authenticated phone action");
             ProtocolMessage phoneAction = read(ios);
             equal("phone.action", phoneAction.type);
             equal("notes.create", phoneAction.payload.get("action"));
+            require(bridge.sendMedia(new ProtocolMessage(1, "media.cancel", MediaTransfer.cancel("00112233445566778899aabbccddeeff", "disabled"))), "authenticated TCP media gate");
+            ProtocolMessage cancel = read(ios);
+            equal("media.cancel", cancel.type);
             send(ios, "ping", map("id", "keepalive-7"));
             ProtocolMessage pong = read(ios);
             equal("pong", pong.type);
@@ -56,7 +63,7 @@ public final class TransportTest {
             close(first);
             require(awaitNoPhoneActions(bridge), "disconnect clears phone action capability");
             reconnect = new Socket("127.0.0.1", port);
-            authenticate(reconnect, false);
+            authenticate(reconnect, false, false);
             require(events.awaitCount("capabilities", 2, 1500), "reconnect callback");
         } finally {
             close(reconnect);
@@ -68,7 +75,7 @@ public final class TransportTest {
         System.out.println("TransportTest: PASS");
     }
 
-    private static Client authenticate(Socket socket, boolean phoneActions) throws Exception {
+    private static Client authenticate(Socket socket, boolean phoneActions, boolean mediaReceive) throws Exception {
         socket.setSoTimeout(1500);
         Client client = new Client(socket, new LinkSession(KEY));
         client.session.accept(client.in.readLine());
@@ -76,7 +83,8 @@ public final class TransportTest {
         ProtocolMessage capabilities = read(client);
         equal("capabilities", capabilities.type);
         equal("glass", capabilities.payload.get("endpoint"));
-        send(client, "capabilities", capabilities(phoneActions));
+        require(capabilities.payload.get("features").contains("media.send.tcp.v1"), "Glass media capability follows opt-in");
+        send(client, "capabilities", capabilities(phoneActions, mediaReceive));
         return client;
     }
 
@@ -89,12 +97,13 @@ public final class TransportTest {
     }
 
     private static void send(Client client, String type, Map<String, String> payload) throws Exception { write(client.socket, client.session.encrypt(type, payload)); }
-    private static Map<String, String> capabilities(boolean phoneActions) { Map<String, String> value = map("endpoint", "ios"); value.put("features", phoneActions ? "tcp,phone.actions" : "tcp"); return value; }
+    private static Map<String, String> capabilities(boolean phoneActions, boolean mediaReceive) { Map<String, String> value = map("endpoint", "ios"); value.put("features", "tcp" + (phoneActions ? ",phone.actions" : "") + (mediaReceive ? ",media.receive.tcp.v1" : "")); return value; }
     private static Map<String, String> map(String a, String b) { Map<String, String> value = new LinkedHashMap<String, String>(); value.put(a, b); return value; }
     private static BufferedReader reader(Socket socket) throws Exception { return new BufferedReader(new InputStreamReader(socket.getInputStream(), Charset.forName("UTF-8"))); }
     private static void write(Socket socket, String line) throws Exception { BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), Charset.forName("UTF-8"))); out.write(line); out.write('\n'); out.flush(); }
     private static int awaitPort(TcpBridge bridge) throws Exception { for (int i = 0; i < 100; i++) { int port = bridge.boundPort(); if (port > 0) return port; Thread.sleep(10); } throw new AssertionError("listener did not bind"); }
     private static boolean awaitPhoneActions(TcpBridge bridge) throws Exception { for (int i = 0; i < 100; i++) { if (bridge.phoneActionsAvailable()) return true; Thread.sleep(10); } return false; }
+    private static boolean awaitMediaReceive(TcpBridge bridge) throws Exception { for (int i = 0; i < 100; i++) { if (bridge.mediaReceiveAvailable()) return true; Thread.sleep(10); } return false; }
     private static boolean awaitNoPhoneActions(TcpBridge bridge) throws Exception { for (int i = 0; i < 100; i++) { if (!bridge.phoneActionsAvailable()) return true; Thread.sleep(10); } return false; }
     private static void waitClosed(Socket socket) throws Exception { try { socket.setSoTimeout(1500); int value = socket.getInputStream().read(); if (value != -1) throw new AssertionError("connection remained open"); } catch (java.net.SocketException expected) { } }
     private static void close(Socket socket) { if (socket != null) try { socket.close(); } catch (Exception ignored) { } }

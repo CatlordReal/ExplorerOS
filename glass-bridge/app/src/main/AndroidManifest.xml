@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <application android:allowBackup="false" android:label="Explorer Link" android:theme="@style/AppTheme">
         <activity android:name=".QrProvisioningActivity" android:exported="false" />
         <activity android:name=".GlassActivity" android:exported="false" android:launchMode="singleTop" android:excludeFromRecents="true" android:taskAffinity="com.exploreros.glass.cards" />
