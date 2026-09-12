@@ -10,7 +10,7 @@ packages:
 settings:
   base:
     SWIFT_VERSION: "5.0"
-    CURRENT_PROJECT_VERSION: "4"
+    CURRENT_PROJECT_VERSION: "6"
     MARKETING_VERSION: "0.1.0"
     CODE_SIGN_STYLE: Automatic
     GENERATE_INFOPLIST_FILE: YES
@@ -31,7 +31,8 @@ targets:
             CFBundleURLSchemes: [explorerlink]
         LSApplicationQueriesSchemes: [shortcuts]
         NSBluetoothAlwaysUsageDescription: Connect to your paired Glass bridge and send encrypted cards and directions.
-        NSLocalNetworkUsageDescription: Connect to your Glass or local simulated Glass endpoint over Wi-Fi.
+        NSLocalNetworkUsageDescription: Connect to your Glass, Explorer Tools on your Mac, or a local simulator over Wi-Fi.
+        NSCameraUsageDescription: Inspect an attached USB camera only when you start the direct USB check.
         NSLocationWhenInUseUsageDescription: Use your current location to calculate route steps you choose to send to Glass.
         NSMicrophoneUsageDescription: Capture dictation you explicitly start and send it to Glass.
         NSPhotoLibraryAddUsageDescription: Save selected Glass photos and videos to your Photos library.
@@ -63,7 +64,7 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: org.exploreros.ExplorerTools
-        CURRENT_PROJECT_VERSION: "6"
+        CURRENT_PROJECT_VERSION: "7"
         ENABLE_APP_SANDBOX: NO
 schemes:
   ExplorerLink:

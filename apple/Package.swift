@@ -10,7 +10,7 @@ let package = Package(
     ],
     targets: [
         .target(name: "ExplorerLinkCore"),
-        .target(name: "ExplorerFlashCore"),
+        .target(name: "ExplorerFlashCore", dependencies: ["ExplorerLinkCore"]),
         .testTarget(name: "ExplorerLinkCoreTests", dependencies: ["ExplorerLinkCore"]),
         .testTarget(name: "ExplorerFlashCoreTests", dependencies: ["ExplorerFlashCore"])
     ]

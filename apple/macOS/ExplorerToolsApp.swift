@@ -3,24 +3,35 @@ import AppKit
 import UniformTypeIdentifiers
 import ExplorerFlashCore
 
-@MainActor final class FlashAppDelegate: NSObject, NSApplicationDelegate {
+@MainActor final class FlashAppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     let model = ToolsModel()
     let themes = ThemeSettings()
     private var window: NSWindow?
     func applicationDidFinishLaunching(_ notification: Notification) {
-        let content = ThemedRoot(settings: themes) { ToolsView(model: self.model, themes: self.themes, recovery: self.model.recoveryWizard) }
+        let content = ThemedRoot(settings: themes) { ToolsView(model: self.model, themes: self.themes, recovery: self.model.recoveryWizard, phone: self.model.phoneInstaller) }
         let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 1020, height: 760), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
         window.title = "Explorer Tools"
         window.minSize = NSSize(width: 780, height: 620)
         window.contentView = NSHostingView(rootView: content)
         window.isReleasedWhenClosed = false
+        window.delegate = self
         window.center()
         window.makeKeyAndOrderFront(nil)
         self.window = window
         NSApplication.shared.activate(ignoringOtherApps: true)
     }
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool { window?.makeKeyAndOrderFront(nil); return true }
-    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply { .terminateNow }
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        guard model.phoneInstaller.sharing else { return .terminateNow }
+        model.phoneInstaller.stop()
+        Task { @MainActor in
+            while model.phoneInstaller.sharing { try? await Task.sleep(for: .milliseconds(100)) }
+            sender.reply(toApplicationShouldTerminate: true)
+        }
+        return .terminateLater
+    }
+    func windowWillClose(_ notification: Notification) { model.phoneInstaller.stop() }
+    func applicationWillTerminate(_ notification: Notification) { model.phoneInstaller.stop() }
 }
 
 @main struct ExplorerToolsApp: App {
@@ -32,6 +43,7 @@ import ExplorerFlashCore
 
 @MainActor final class ToolsModel: ObservableObject {
     let recoveryWizard = RecoveryWizardModel()
+    let phoneInstaller = MacPhoneInstallerModel()
     @Published var adbPath = ""
     @Published var fastbootPath = ""
     @Published private(set) var devices: [Device] = []
@@ -96,13 +108,13 @@ import ExplorerFlashCore
     }
     func invalidate() { plan = nil; installPlan = nil }
     func inspectRecoveryDevice() async {
-        guard !busy, !recoveryWizard.busy, let device = selectedDevice, device.mode == .adb else { return }
+        guard !phoneInstaller.sharing, !busy, !recoveryWizard.busy, let device = selectedDevice, device.mode == .adb else { return }
         busy = true; defer { busy = false }
         do { recoveryWizard.inspect(adb: try await binary(adbPath, role: "adb"), serial: device.serial) }
         catch { recoveryWizard.report(error) }
     }
     func prepareRecoveryFirmware() async {
-        guard !busy, !recoveryWizard.busy else { return }
+        guard !phoneInstaller.sharing, !busy, !recoveryWizard.busy else { return }
         guard let portable, let metadata = portable.bundle.files.first(where: { $0.role == "firmware" }), portable.bundle.isCWMBackup else {
             recoveryWizard.report(ExplorerFlashError.invalidManifest("Bundled CWM firmware is unavailable. Open the complete portable app.")); return
         }
@@ -111,6 +123,19 @@ import ExplorerFlashCore
             let firmware = try await Task.detached { try portable.validated(role: "firmware") }.value
             recoveryWizard.prepare(firmware: firmware, sha256: metadata.sha256)
         } catch { recoveryWizard.report(error) }
+    }
+    func startPhoneInstaller() async {
+        guard !busy, !recoveryWizard.busy, !phoneInstaller.sharing,
+              let device = selectedDevice, device.mode == .adb, device.state == "device",
+              let portable, portable.bundle.isCWMBackup,
+              let metadata = portable.bundle.files.first(where: { $0.role == "firmware" }) else { return }
+        busy = true; defer { busy = false }
+        do {
+            let adb = try await binary(adbPath, role: "adb")
+            let firmware = try await Task.detached { try portable.validated(role: "firmware") }.value
+            recoveryWizard.reset(); invalidate()
+            try phoneInstaller.start(adb: adb, serial: device.serial, firmware: firmware, sha256: metadata.sha256)
+        } catch { phoneInstaller.report(error) }
     }
     private func binary(_ path: String, role: String) async throws -> URL {
         guard path.hasPrefix("/"), FileManager.default.isExecutableFile(atPath: path) else { throw ExplorerFlashError.invalidDevice("Choose an existing absolute executable path for adb/fastboot.") }
@@ -140,7 +165,7 @@ import ExplorerFlashCore
         }
     }
     func refresh() async {
-        guard !busy else { return }; busy = true; invalidate(); defer { busy = false }
+        guard !phoneInstaller.sharing, !recoveryWizard.busy, !busy else { return }; busy = true; invalidate(); defer { busy = false }
         do {
             let adb = try await binary(adbPath, role: "adb"); let fastboot = try await binary(fastbootPath, role: "fastboot")
             let a = try await runner.run(.init(executable: adb, arguments: ["devices", "-l"], timeout: 15))
@@ -153,7 +178,7 @@ import ExplorerFlashCore
         } catch { devices = []; selected = ""; log = error.localizedDescription }
     }
     func preview() async {
-        guard !busy else { return }; busy = true; invalidate(); defer { busy = false }
+        guard !phoneInstaller.sharing, !recoveryWizard.busy, !busy else { return }; busy = true; invalidate(); defer { busy = false }
         do {
             guard let device = selectedDevice else { throw ExplorerFlashError.invalidDevice("Select a device first.") }
             if page == "apps" {
@@ -172,7 +197,7 @@ import ExplorerFlashCore
         } catch { log = error.localizedDescription }
     }
     func install() async {
-        guard !busy, let approved = installPlan, let device = selectedDevice, let apk else { return }
+        guard !phoneInstaller.sharing, !recoveryWizard.busy, !busy, let approved = installPlan, let device = selectedDevice, let apk else { return }
         busy = true; defer { busy = false; installPlan = nil }
         do {
             let adb = try await binary(adbPath, role: "adb")
@@ -194,6 +219,7 @@ struct ToolsView: View {
     @ObservedObject var model: ToolsModel
     @ObservedObject var themes: ThemeSettings
     @ObservedObject var recovery: RecoveryWizardModel
+    @ObservedObject var phone: MacPhoneInstallerModel
     @Environment(\.linkPalette) private var palette
     @State private var confirmInstall = false
     var body: some View {
@@ -205,6 +231,7 @@ struct ToolsView: View {
                 Divider()
                 sidebarButton("Install apps", icon: "square.and.arrow.down", page: "apps")
                 sidebarButton("Firmware", icon: "externaldrive", page: "firmware")
+                sidebarButton("iPhone installer", icon: "iphone", page: "phone")
                 sidebarButton("Appearance", icon: "paintpalette", page: "appearance")
                 Spacer()
                 Label("Preview first", systemImage: "checkmark.shield").font(.caption).foregroundStyle(palette.muted)
@@ -215,7 +242,12 @@ struct ToolsView: View {
                     if model.page == "appearance" {
                         Text("Appearance").font(.largeTitle.bold())
                         Form { ThemeSettingsView(settings: themes) }.formStyle(.grouped).frame(minHeight: 520)
+                    } else if model.page == "phone" {
+                        PhoneInstallerView(model: phone, selectedSerial: model.selectedDevice?.serial,
+                                           canStart: model.selectedDevice?.mode == .adb && model.selectedDevice?.state == "device" && model.portable?.bundle.isCWMBackup == true,
+                                           start: { Task { await model.startPhoneInstaller() } })
                     } else {
+                        Group {
                         HStack {
                             VStack(alignment: .leading, spacing: 6) {
                                 Text(model.page == "apps" ? "Install APK" : "Firmware").font(.system(.largeTitle, design: .rounded, weight: .semibold))
@@ -277,6 +309,8 @@ struct ToolsView: View {
                         }
                         }
                         GroupBox("Activity") { Text(model.log).font(.system(.caption, design: .monospaced)).textSelection(.enabled).frame(maxWidth: .infinity, minHeight: 90, alignment: .topLeading).padding(8) }
+                        }.disabled(phone.sharing)
+                        if phone.sharing { Text("iPhone control is active. Stop it on the iPhone installer page before using local controls.").font(.callout) }
                     }
                 }.padding(28).frame(maxWidth: 1050)
             }.background(palette.bg).disabled(model.busy || recovery.busy)

@@ -1,6 +1,6 @@
 # Explorer Tools for another Mac
 
-Explorer Tools v0.1.0 (build 6) is an offline personal transfer package.
+Explorer Tools v0.1.0 (build 7) is an offline personal transfer package.
 Copy `Explorer-Tools-Portable.zip` to your other Mac and unzip it. Move
 `Explorer Tools.app` to Applications, then open it. macOS 14 or later is required.
 The universal application and bundled USB tools support Apple silicon and Intel;
@@ -10,6 +10,10 @@ internet connection are not needed to run this package.
 This is an ad-hoc signed developer build, not a notarized release. Another Mac
 may require approval through System Settings > Privacy & Security > Open Anyway.
 Keep normal macOS security settings enabled.
+
+The optional **iPhone installer** page exposes the same preparation controls to
+the phone over authenticated Wi-Fi. This Mac must remain connected to Glass by
+USB. It is not an iPhone-only flasher. See [PHONE-INSTALLER.md](PHONE-INSTALLER.md).
 
 ## Install the Glass companion
 

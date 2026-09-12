@@ -2,6 +2,30 @@
 
 ## Answer
 
+**Direct iPhone-only installation is not implemented or established.** The Mac
+remote is retained as an optional convenience, not a substitute for that request.
+The [implemented Mac bridge](PHONE-INSTALLER.md) still needs USB attached to the
+Mac throughout preparation and leaves the actual restore to the user on Glass.
+
+Rechecking the pinned firmware found no demonstrated first-install bootstrap from
+iPhone: USB defaults to ADB, network ADB is not enabled, recovery has no configured
+Wi-Fi, and no browser/file-manager/terminal APK was found in the inspected system
+inventory. PackageInstaller, `pm` and `wget` binaries alone do not establish a
+user-operable way to install a receiver. No Glass was attached for physical checks.
+
+For later Wi-Fi updates, a compatible receiver must already be installed and
+able to write shared storage. It would need authenticated transfer, a verified
+off-device backup, exact archive/file checks and evidence of the currently
+installed recovery. The current Glass bridge has none of that firmware receiver
+workflow. Its media synchronization runs in the opposite direction. Normal app
+or system/app installation alone does not grant access to attest the raw recovery
+partition. A bundled recovery image is not evidence of what the device runs.
+
+An Android receiver could prepare the complete CWM folder while normal Wi-Fi is
+available and then guide a manual CWM restore. It would not establish a stock
+first installation, and Android Wi-Fi cannot be assumed to survive into recovery.
+No automated recovery command or raw writer was added to bypass these conditions.
+
 It is not supportable to say that every imaginable iPhone-to-Glass installation
 route is impossible. It is supportable to say that **this stock iPhone app has no
 public, direct USB ADB or Fastboot route**, and current Apple public APIs do not

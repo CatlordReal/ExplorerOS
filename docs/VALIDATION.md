@@ -12,7 +12,7 @@ Glass hardware or firmware restoration. No Glass was connected or written to.
   Android boot headers and SHA-1 IDs, bounded gzip/newc parsing, GNU tar names,
   traversal, link parents, CRC/MD5 damage and missing partitions.
 - Glass JVM `CoreTest`, `TransportTest`, and `MediaTransferTest`: pass.
-- Swift: 74 cases, zero failures, with the optional current firmware case enabled
+- Swift: 100 cases, zero failures, with the optional current firmware case enabled
   and exercising the production snapshot, flat extraction, and checksum path.
   Coverage includes bounded media schemas/vault recovery, backup inventory and
   executable revalidation, strict ZIP admission, timeouts, cancellation, and a
@@ -22,6 +22,12 @@ Glass hardware or firmware restoration. No Glass was connected or written to.
   cancellation, partial transfers, publication failures and local FIFO rejection.
   Scenarios are not counted as separate XCTest test methods.
 - Eight signed Shortcut presets pass workflow, token and binary-hash checks.
+- The optional iPhone/Mac installer adds 9 recovery-host tests, 12 real-loopback
+  server tests and 5 protocol tests. These cover serial binding, callback-time
+  cancellation, stale/replayed requests, wrong keys, malformed/fragmented frames,
+  the 8-second authentication and 20-second idle deadlines, backup receipt
+  revocation and host reservation through cancellation. The 5 protocol tests also
+  passed after final trailing-newline rejection was added.
 
 The full Swift suite used Xcode beta's native SwiftPM build system:
 
@@ -52,15 +58,22 @@ See [FIRMWARE-AUDIT.md](FIRMWARE-AUDIT.md) for scope, commands and limits.
 
 ## Builds and device installation
 
-The API 19 APK, iPhone Debug simulator app, signed iPhone Release build 4, and
-universal Mac Release build 6 all build successfully. The Mac supports arm64 and
+The API 19 APK, iPhone Debug simulator app, signed iPhone Release build 6, and
+universal Mac Release build 7 all build successfully. The Mac supports arm64 and
 x86_64, with macOS 14 as its minimum; Intel runtime remains untested. The Qt 6
 endpoint's previous build/offscreen smoke check remains valid; Qt was unchanged.
 
-Explorer Link v0.1.0 build 4 installed successfully on the paired iPhone with all
-eight signed Shortcut presets and media sync. Remote launch was denied because
-the phone was locked. Physical iPhone launch, Photos export, radio behavior and
-Glass interaction have not been verified by this update.
+Explorer Link v0.1.0 build 5 was verified in Catphone's installed-app inventory
+after its transfer reported a connection interruption. Build 6 removes the USB
+research check from release UI and tightens protocol validation; its subsequent
+install attempt failed because Catphone was no longer reachable. Build 5 is the
+last device-verified version. Physical iPhone launch, Photos export, radio behavior
+and Glass interaction have not been verified by this update.
+
+The new firmware screen was captured from the actual iPhone Simulator. The
+optional Mac remote controls the existing preparation workflow; it does not
+provide iPhone-only flashing. The USB research check is developer-only and sends
+no PTP commands. No physical USB/PTP or direct firmware transfer was tested.
 
 ## Actual simulator media transfer
 

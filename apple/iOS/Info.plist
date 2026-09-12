@@ -39,8 +39,10 @@
 	<string>Connect to your paired Glass bridge and send encrypted cards and directions.</string>
 	<key>NSCalendarsFullAccessUsageDescription</key>
 	<string>Read upcoming events only when you choose to send them to Glass.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Inspect an attached USB camera only when you start the direct USB check.</string>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>Connect to your Glass or local simulated Glass endpoint over Wi-Fi.</string>
+	<string>Connect to your Glass, Explorer Tools on your Mac, or a local simulator over Wi-Fi.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Use your current location to calculate route steps you choose to send to Glass.</string>
 	<key>NSMicrophoneUsageDescription</key>

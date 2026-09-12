@@ -78,6 +78,7 @@ struct GlassHome: View {
     @ObservedObject var dictation: DictationModel
     @State private var noteSaved = false
     @State private var showMedia = false
+    @State private var showFirmware = false
     @Environment(\.linkPalette) private var palette
     var body: some View {
         ScrollView {
@@ -96,6 +97,7 @@ struct GlassHome: View {
                 }
                 GlassCard(title: companion.cardTitle, bodyText: companion.cardBody, source: companion.cardSource)
                 Button { showMedia = true } label: { Label("Glass media", systemImage: "photo.on.rectangle") }
+                Button { showFirmware = true } label: { Label("Firmware", systemImage: "externaldrive") }
                 VStack(alignment: .leading, spacing: 12) {
                     Text("SEND TEXT").font(.caption2.weight(.semibold)).tracking(1.7).foregroundStyle(palette.muted)
                     TextField("A note for your Glass…", text: $companion.draft, axis: .vertical).lineLimit(2...5).padding(14).background(palette.panel, in: RoundedRectangle(cornerRadius: 16))
@@ -126,9 +128,11 @@ struct GlassHome: View {
         .navigationDestination(isPresented: $showMedia) {
             MediaLibraryView(store: companion.mediaSync, connected: companion.connected, wifi: companion.mode == .wifi) { companion.refreshMediaCapability() }
         }
+        .navigationDestination(isPresented: $showFirmware) { PhoneFirmwareView() }
         .onAppear {
             #if DEBUG
             if ProcessInfo.processInfo.arguments.contains("--media-preview") { showMedia = true }
+            if ProcessInfo.processInfo.arguments.contains("--firmware-preview") { showFirmware = true }
             #endif
         }
     }
