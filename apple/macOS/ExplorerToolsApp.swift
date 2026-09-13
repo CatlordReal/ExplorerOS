@@ -8,6 +8,9 @@ import ExplorerFlashCore
     let themes = ThemeSettings()
     private var window: NSWindow?
     func applicationDidFinishLaunching(_ notification: Notification) {
+        #if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("--wifi-preview") { model.page = "wifi" }
+        #endif
         let content = ThemedRoot(settings: themes) { ToolsView(model: self.model, themes: self.themes, recovery: self.model.recoveryWizard, phone: self.model.phoneInstaller) }
         let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 1020, height: 760), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
         window.title = "Explorer Tools"
@@ -47,6 +50,8 @@ import ExplorerFlashCore
     @Published var adbPath = ""
     @Published var fastbootPath = ""
     @Published private(set) var devices: [Device] = []
+    @Published private(set) var discoveryFailures: [DeviceDiscoveryFailure] = []
+    @Published private(set) var hasRefreshed = false
     @Published var selected = ""
     @Published private(set) var busy = false
     @Published private(set) var log = "Choose tools, then refresh devices."
@@ -166,16 +171,23 @@ import ExplorerFlashCore
     }
     func refresh() async {
         guard !phoneInstaller.sharing, !recoveryWizard.busy, !busy else { return }; busy = true; invalidate(); defer { busy = false }
+        let adbSelection = adbPath, fastbootSelection = fastbootPath
+        discoveryFailures = []
         do {
-            let adb = try await binary(adbPath, role: "adb"); let fastboot = try await binary(fastbootPath, role: "fastboot")
-            let a = try await runner.run(.init(executable: adb, arguments: ["devices", "-l"], timeout: 15))
-            let f = try await runner.run(.init(executable: fastboot, arguments: ["devices"], timeout: 15))
-            guard a.exitCode == 0 else { throw ExplorerFlashError.processFailed(a) }
-            guard f.exitCode == 0 else { throw ExplorerFlashError.processFailed(f) }
-            devices = DeviceParser.adbDevices(a.stdout) + DeviceParser.fastbootDevices(f.stdout)
+            let result = try await DeviceDiscovery(runner: runner).scan { [weak self] mode in
+                guard let self else { throw CancellationError() }
+                return try await self.binary(mode == .adb ? adbSelection : fastbootSelection, role: mode.rawValue)
+            }
+            devices = result.devices; discoveryFailures = result.failures; hasRefreshed = true
             if !devices.contains(where: { "\($0.mode.rawValue):\($0.serial)" == selected }) { selected = "" }
-            log = devices.isEmpty ? "No ADB or fastboot devices found. Connect Glass with USB debugging enabled. Nothing was changed." : "Found \(devices.count) device(s). Choose the exact Glass serial; no device is automatically selected."
-        } catch { devices = []; selected = ""; log = error.localizedDescription }
+            if devices.isEmpty {
+                log = discoveryFailures.isEmpty ? "No ADB or Fastboot devices detected. Check Glass debugging and the USB data connection." : "No devices returned. Resolve the tool errors shown above, then refresh."
+            } else {
+                log = "Found \(devices.count) device(s). Choose the exact Glass serial."
+                if !discoveryFailures.isEmpty { log += " One tool failed; devices from the working tool remain available." }
+            }
+        } catch is CancellationError { log = "Device scan canceled." }
+        catch { log = error.localizedDescription }
     }
     func preview() async {
         guard !phoneInstaller.sharing, !recoveryWizard.busy, !busy else { return }; busy = true; invalidate(); defer { busy = false }
@@ -232,6 +244,7 @@ struct ToolsView: View {
                 sidebarButton("Install apps", icon: "square.and.arrow.down", page: "apps")
                 sidebarButton("Firmware", icon: "externaldrive", page: "firmware")
                 sidebarButton("iPhone installer", icon: "iphone", page: "phone")
+                sidebarButton("Wi-Fi setup", icon: "wifi", page: "wifi")
                 sidebarButton("Appearance", icon: "paintpalette", page: "appearance")
                 Spacer()
                 Label("Preview first", systemImage: "checkmark.shield").font(.caption).foregroundStyle(palette.muted)
@@ -242,6 +255,8 @@ struct ToolsView: View {
                     if model.page == "appearance" {
                         Text("Appearance").font(.largeTitle.bold())
                         Form { ThemeSettingsView(settings: themes) }.formStyle(.grouped).frame(minHeight: 520)
+                    } else if model.page == "wifi" {
+                        WiFiSetupView()
                     } else if model.page == "phone" {
                         PhoneInstallerView(model: phone, selectedSerial: model.selectedDevice?.serial,
                                            canStart: model.selectedDevice?.mode == .adb && model.selectedDevice?.state == "device" && model.portable?.bundle.isCWMBackup == true,
@@ -266,6 +281,16 @@ struct ToolsView: View {
                                         ForEach(Array(model.devices.enumerated()), id: \.offset) { _, device in Text("\(device.serial) · \(device.mode.rawValue) · \(device.state)").tag("\(device.mode.rawValue):\(device.serial)") }
                                     }
                                     Button("Refresh devices") { Task { await model.refresh() } }
+                                }
+                                ForEach(Array(model.discoveryFailures.enumerated()), id: \.offset) { _, failure in
+                                    Label("\(failure.mode.rawValue == "adb" ? "ADB" : "Fastboot"): \(failure.message)", systemImage: "exclamationmark.triangle")
+                                        .font(.callout).foregroundStyle(.red).textSelection(.enabled)
+                                }
+                                if model.devices.contains(where: { $0.mode == .adb && $0.state == "unauthorized" }) {
+                                    Text("On Glass, approve the USB debugging prompt, then refresh.").font(.callout)
+                                }
+                                if model.hasRefreshed && model.devices.isEmpty && model.discoveryFailures.isEmpty {
+                                    Text("On Glass: Settings › Device Info › Turn on debug. Charging or a connection sound does not confirm USB data; try another data cable or hub port.").font(.callout).foregroundStyle(palette.muted)
                                 }
                             }.padding(8)
                         }

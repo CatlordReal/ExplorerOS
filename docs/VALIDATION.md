@@ -1,7 +1,8 @@
 # Validation status
 
-Updated 12 September 2026. Software checks and simulator captures do not certify
-Glass hardware or firmware restoration. No Glass was connected or written to.
+Updated 13 September 2026. Software checks and simulator captures do not certify
+Glass hardware or firmware restoration. Glass now enumerates over direct USB,
+but ADB remains unauthorized. No APK installation or firmware write has occurred.
 
 ## Automated checks
 
@@ -12,11 +13,18 @@ Glass hardware or firmware restoration. No Glass was connected or written to.
   Android boot headers and SHA-1 IDs, bounded gzip/newc parsing, GNU tar names,
   traversal, link parents, CRC/MD5 damage and missing partitions.
 - Glass JVM `CoreTest`, `TransportTest`, and `MediaTransferTest`: pass.
-- Swift: 100 cases, zero failures, with the optional current firmware case enabled
+- Swift: 112 cases, zero failures, with the optional current firmware case enabled
   and exercising the production snapshot, flat extraction, and checksum path.
   Coverage includes bounded media schemas/vault recovery, backup inventory and
   executable revalidation, strict ZIP admission, timeouts, cancellation, and a
   valid raw-flash plan making zero runner calls.
+- Six device-discovery cases cover independent ADB/Fastboot results and failures,
+  cancellation and bounded diagnostics. Six Wi-Fi QR cases cover UTF-8 SSID and
+  WPA limits, escaping, unsupported data and open networks.
+- Five modular-update build tests pass. An isolated release APK build and signing
+  with the retained development key completed; APK v2/0.1.1 verifies with the same
+  certificate as base v1, minimum SDK 19 and v1/JAR signing. APK/base signatures,
+  package identity and increasing version are required by the update builder.
 - The 14 new Swift recovery fault methods cover 78 parameter scenarios, including
   serial loss/replacement, mount/storage drift, every upload slot, timeout,
   cancellation, partial transfers, publication failures and local FIFO rejection.
@@ -58,17 +66,21 @@ See [FIRMWARE-AUDIT.md](FIRMWARE-AUDIT.md) for scope, commands and limits.
 
 ## Builds and device installation
 
-The API 19 APK, iPhone Debug simulator app, signed iPhone Release build 6, and
-universal Mac Release build 7 all build successfully. The Mac supports arm64 and
+The API 19 APK, iPhone Debug simulator app, signed iPhone Release build 7, and
+universal Mac Release build 8 all build successfully. The Mac supports arm64 and
 x86_64, with macOS 14 as its minimum; Intel runtime remains untested. The Qt 6
 endpoint's previous build/offscreen smoke check remains valid; Qt was unchanged.
 
-Explorer Link v0.1.0 build 5 was verified in Catphone's installed-app inventory
-after its transfer reported a connection interruption. Build 6 removes the USB
-research check from release UI and tightens protocol validation; its subsequent
-install attempt failed because Catphone was no longer reachable. Build 5 is the
-last device-verified version. Physical iPhone launch, Photos export, radio behavior
-and Glass interaction have not been verified by this update.
+Explorer Link v0.1.0 build 7 installed successfully on Catphone on 13 September;
+a separate, bundle-filtered installed-app query verified version 7. This build
+includes local Wi-Fi QR setup. Physical iPhone launch, Photos export, radio
+behavior and Glass interaction have not been verified by this update.
+
+The final iPhone Wi-Fi screen was captured from the running simulator using
+synthetic credentials. Mac UI inspection exposed a button contrast issue that
+was corrected and independently reviewed; both final Mac configurations rebuild.
+The native UI connector closed during restart, so a capture of that final Mac
+button adjustment is still unavailable.
 
 The new firmware screen was captured from the actual iPhone Simulator. The
 optional Mac remote controls the existing preparation workflow; it does not
@@ -104,6 +116,11 @@ Its API 19 APK SHA-256:
 ```text
 9070951fc3e7e6b6e977e08e6cc637c71e49ccfee4d513a801f042dd8132e0c6
 ```
+
+The separate modular update APK (version 2 / 0.1.1) has SHA-256
+`98da1f8ac8f636d0f7359e48b9feca89453469e8b53f17e769785437af3c942c`.
+Its signer certificate matches the bundled base. It has not been installed on
+Glass, and it does not replace or modify the bundled firmware archive.
 
 Independent archive comparison verified all 1,373 original system members and
 593,869,312 original tar bytes. The only added member is

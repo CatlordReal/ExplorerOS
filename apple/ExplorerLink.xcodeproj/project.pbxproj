@@ -15,6 +15,7 @@
 		2082CED0F4D4D3B79844BF25 /* notes.create.json in Resources */ = {isa = PBXBuildFile; fileRef = 0D1C3C24612A259F65C9351E /* notes.create.json */; };
 		21CE8F562C0941943945ECD8 /* PhoneIntegrations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D17F9326A0C90B6F24E94AB /* PhoneIntegrations.swift */; };
 		22446142C69224994B230C5D /* Explorer Recognize Music.shortcut in Resources */ = {isa = PBXBuildFile; fileRef = 2A1289B32CFF0316A8A5961E /* Explorer Recognize Music.shortcut */; };
+		24BFCC1B99BAFCD2D0E2CFDC /* WiFiSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62A75BDD4F3768A3B244604 /* WiFiSetupView.swift */; };
 		2A927D9ABF162B6E25CF7B52 /* PhoneInstallerModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E3B62C44107D28AFD6D7B02 /* PhoneInstallerModel.swift */; };
 		2F1D146A3B83B5EE88CD0015 /* PhoneFirmwareView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D1C49EBADBE1388A80EE6A /* PhoneFirmwareView.swift */; };
 		37E93AFF2CB7554419E647AA /* LinkTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCE86543C26A86910FFAFF16 /* LinkTransport.swift */; };
@@ -33,6 +34,7 @@
 		9D4442238F2E24A487A570BA /* MediaSyncStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15FE208B89556BA91073C10C /* MediaSyncStore.swift */; };
 		AC3C3AE74EB2A16A6ADD3A15 /* DirectionsAndSpeech.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16A7402494733FC7108E7A13 /* DirectionsAndSpeech.swift */; };
 		AF099396EF76307E8319B1E6 /* USBGlassProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2088BF7549143414D7B2EA0 /* USBGlassProbe.swift */; };
+		B363ADE22131A08908122312 /* WiFiSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62A75BDD4F3768A3B244604 /* WiFiSetupView.swift */; };
 		B9C26189C941346090487DD9 /* Themes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F38BE1173C8EBC56884557F /* Themes.swift */; };
 		BC8E060B9EED07EC69DA6E65 /* Explorer Silent On.shortcut in Resources */ = {isa = PBXBuildFile; fileRef = B555DBCA894F306745BE13D8 /* Explorer Silent On.shortcut */; };
 		C23D2AE8513DCD4667424AA3 /* silent.off.json in Resources */ = {isa = PBXBuildFile; fileRef = 88D8BC2D6D9261C5E1412052 /* silent.off.json */; };
@@ -75,6 +77,7 @@
 		B555DBCA894F306745BE13D8 /* Explorer Silent On.shortcut */ = {isa = PBXFileReference; path = "Explorer Silent On.shortcut"; sourceTree = "<group>"; };
 		BCE86543C26A86910FFAFF16 /* LinkTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinkTransport.swift; sourceTree = "<group>"; };
 		C47D003957CAE88A199E9E3F /* Explorer Browse Notes.shortcut */ = {isa = PBXFileReference; path = "Explorer Browse Notes.shortcut"; sourceTree = "<group>"; };
+		C62A75BDD4F3768A3B244604 /* WiFiSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WiFiSetupView.swift; sourceTree = "<group>"; };
 		D0B1191EA9550C39CA5700EF /* focus.off.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = focus.off.json; sourceTree = "<group>"; };
 		D3FE69DF9C1F6098ED992902 /* MediaLibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaLibraryView.swift; sourceTree = "<group>"; };
 		DC35309597E0395228F246C0 /* Explorer Focus On.shortcut */ = {isa = PBXFileReference; path = "Explorer Focus On.shortcut"; sourceTree = "<group>"; };
@@ -193,6 +196,7 @@
 			isa = PBXGroup;
 			children = (
 				8F38BE1173C8EBC56884557F /* Themes.swift */,
+				C62A75BDD4F3768A3B244604 /* WiFiSetupView.swift */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -322,6 +326,7 @@
 				D4A26A7F5EACC89016B9C6A2 /* PortableResources.swift in Sources */,
 				CF59F1F588DC0905815D6F07 /* RecoveryWizard.swift in Sources */,
 				B9C26189C941346090487DD9 /* Themes.swift in Sources */,
+				B363ADE22131A08908122312 /* WiFiSetupView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -343,6 +348,7 @@
 				DEF3608AA1ADFE7101035301 /* PhoneUtilities.swift in Sources */,
 				737CDCE159DE3B0AE712538B /* Themes.swift in Sources */,
 				AF099396EF76307E8319B1E6 /* USBGlassProbe.swift in Sources */,
+				24BFCC1B99BAFCD2D0E2CFDC /* WiFiSetupView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -384,7 +390,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 7;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -455,7 +461,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 8;
 				ENABLE_APP_SANDBOX = NO;
 				INFOPLIST_FILE = macOS/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -502,7 +508,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 7;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -532,7 +538,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 8;
 				ENABLE_APP_SANDBOX = NO;
 				INFOPLIST_FILE = macOS/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (

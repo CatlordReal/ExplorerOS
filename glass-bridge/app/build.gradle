@@ -1,14 +1,22 @@
 plugins { id 'com.android.application' }
 
+def releaseVersion = new Properties()
+rootProject.file('version.properties').withInputStream { releaseVersion.load(it) }
+if (project.hasProperty('explorerBuildDir')) {
+    layout.buildDirectory = file(project.property('explorerBuildDir'))
+}
+
 android {
     namespace 'com.exploreros.glass'
     compileSdk 35
+    // Direct XE24 sideload updates are not distributed through Google Play.
+    lint { disable 'ExpiredTargetSdkVersion' }
 
     defaultConfig {
         applicationId 'com.exploreros.glass'
         minSdk 19
         targetSdk 28
-        versionCode 1
-        versionName '0.1.0'
+        versionCode releaseVersion.getProperty('versionCode').toInteger()
+        versionName releaseVersion.getProperty('versionName')
     }
 }

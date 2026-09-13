@@ -148,7 +148,7 @@ def main() -> None:
         shutil.copy2(ROOT / "LICENSE", licenses / "ExplorerOS-GPL-3.0.txt")
         if (tool_root / "source.properties").is_file():
             shutil.copy2(tool_root / "source.properties", licenses / "platform-tools-source.properties")
-        for name in ["FIRMWARE-BUNDLE.md", "FIRMWARE-INTEGRATION.md", "FIRMWARE-AUDIT.md", "IPHONE-FIRMWARE-OPTIONS.md", "PHONE-INSTALLER.md", "VALIDATION.md", "UPSTREAM-INSTALLER.md", "FLASHING.md", "COMMUNITY-SAFETY.md", "MEDIA-SYNC.md", "GLASS.md", "HARDWARE.md", "INTEGRATIONS.md", "FEASIBILITY-HFP.md"]:
+        for name in ["FIRMWARE-BUNDLE.md", "FIRMWARE-INTEGRATION.md", "MODULAR-UPDATES.md", "FIRMWARE-AUDIT.md", "IPHONE-FIRMWARE-OPTIONS.md", "PHONE-INSTALLER.md", "WIFI-SETUP.md", "VALIDATION.md", "UPSTREAM-INSTALLER.md", "FLASHING.md", "COMMUNITY-SAFETY.md", "MEDIA-SYNC.md", "GLASS.md", "HARDWARE.md", "INTEGRATIONS.md", "FEASIBILITY-HFP.md"]:
             shutil.copy2(ROOT / "docs" / name, portable / name)
         guide = ROOT / "docs/PORTABLE-MAC.md"
         shutil.copy2(guide, portable / "INSTALL.md")
@@ -165,7 +165,7 @@ def main() -> None:
                 path = ROOT / relative
                 if not path.is_file() or path.is_symlink():
                     continue
-                if path.suffix in {".log", ".key", ".keystore", ".p12", ".pfx", ".mobileprovision", ".provisionprofile", ".xcuserstate"}:
+                if path.suffix.lower() in {".log", ".key", ".keystore", ".jks", ".p12", ".pfx", ".mobileprovision", ".provisionprofile", ".xcuserstate"}:
                     continue
                 if path.name in {"local.properties", ".DS_Store"} or path.name.startswith(".env"):
                     continue

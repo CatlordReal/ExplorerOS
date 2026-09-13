@@ -5,6 +5,10 @@ Completely free custom ROM for Google Glass **Explorer Edition**
 
 ## Apple companion fork
 
+Routine bridge and data updates can avoid another firmware restore. See
+[updates without reflashing](docs/MODULAR-UPDATES.md) for the update procedure,
+signing requirements and rollback limits.
+
 This fork adds an API 19 iPhone service to ExplorerOS, a Swift iPhone companion, a portable native Mac installer, and a Python/Qt simulated Glass endpoint. The derived firmware preinstalls a service implementing boot startup and automatic incoming cards after one-time pairing; physical Glass behavior remains untested. The build adds an APK to the system tar and updates its checksum. Original system members and other ZIP payloads remain byte-identical to the input archive; a full CWM restore can still overwrite device partitions and personal data.
 
 Start with [Apple setup and build instructions](docs/APPLE.md), [firmware integration](docs/FIRMWARE-INTEGRATION.md), [portable Mac package](docs/PORTABLE-MAC.md), [Glass setup](docs/GLASS.md), and [simulator](docs/SIMULATOR.md). [Current validation](docs/VALIDATION.md) and [hardware verification](docs/HARDWARE.md) distinguish tested software from unverified Glass hardware behavior.

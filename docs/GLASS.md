@@ -74,6 +74,9 @@ The resulting debug APK is
 flashes, unlocks, erases, or otherwise changes Glass firmware. Installation and
 physical-device validation remain deliberate user actions.
 
+Use the [modular update procedure](MODULAR-UPDATES.md) for published replacements.
+Debug builds made with a different signing key cannot update the bundled APK.
+
 `test-core.sh` is dependency-free pure JVM coverage for protocol framing,
 invalid UTF-8, strict Base64, deterministic shared AES-GCM fixture decrypt and
 re-encrypt, challenge/replay rejection, fragmented ANCS attributes, action

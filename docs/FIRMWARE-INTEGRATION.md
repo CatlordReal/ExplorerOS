@@ -17,6 +17,8 @@ The foreground service, protocol, ANCS/AMS clients, and card UI remain an isolat
 module suitable for upstream inclusion. Android can update the same signed
 package separately, so future bridge fixes need not require another ROM restore.
 Keep the signing key consistent between preinstall and later APK updates.
+See [updates without reflashing](MODULAR-UPDATES.md) for the app/data boundary,
+release checks and KitKat rollback limitations.
 
 ## Build the integrated recovery backup
 

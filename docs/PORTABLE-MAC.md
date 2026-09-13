@@ -1,6 +1,6 @@
 # Explorer Tools for another Mac
 
-Explorer Tools v0.1.0 (build 7) is an offline personal transfer package.
+Explorer Tools v0.1.0 (build 8) is an offline personal transfer package.
 Copy `Explorer-Tools-Portable.zip` to your other Mac and unzip it. Move
 `Explorer Tools.app` to Applications, then open it. macOS 14 or later is required.
 The universal application and bundled USB tools support Apple silicon and Intel;
@@ -30,6 +30,35 @@ An ordinary APK installation also enables the guarded stock-HFP test path when
 the exact audited Bluetooth package is present. The bridge implements background
 startup after one-time pairing and opt-in; real boot/startup behavior remains
 untested. Neither implementation requires reflashing the ROM.
+
+### Device discovery
+
+ADB and Fastboot scan independently. If one tool fails, its error appears next
+to the device picker and devices from the working tool remain available. Choose
+the exact Glass serial; discovery never selects a new device automatically.
+An unauthorized ADB entry needs approval of the debugging prompt on Glass.
+
+An empty list with no tool errors can indicate a USB data connection problem.
+Charging or a connection sound does not prove USB data works. Enable **Settings
+> Device Info > Turn on debug** on Glass, then check the data cable and hub port.
+Do not factory reset to troubleshoot an empty USB list. On the owner's Mac Studio,
+bypassing a powered hub with a direct USB-C adapter allowed Glass to enumerate.
+ADB then reported `unauthorized`; USB detection alone does not establish approval.
+
+### Update the bridge
+
+Choose the new compatible APK on **Install apps** and use the same review/install
+flow. Routine bridge and card updates do not require a firmware restore. Updates
+must retain the original signing key and advance the version number. See
+[MODULAR-UPDATES.md](MODULAR-UPDATES.md) for build and rollback limits; removing a
+system-app update can erase its private data on KitKat.
+
+## Wi-Fi setup
+
+Open **Wi-Fi setup** to create a local code for Glass's existing network scanner.
+It works without USB or MyGlass. The code includes the entered credentials and
+is cleared when you leave the screen or app. See [WIFI-SETUP.md](WIFI-SETUP.md)
+for the Glass steps and compatibility limits. This does not require new firmware.
 
 ## Included firmware
 
